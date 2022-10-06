@@ -1,5 +1,5 @@
 server:
-  port: 9000
+  port: 9001
 
 spring:
   application:
@@ -7,7 +7,7 @@ spring:
 
   datasource:
     platform: mysql
-    url: jdbc:mysql://database-1.cb2jmajikv2k.ap-northeast-2.rds.amazonaws.com/dev_careeix?autoReconnect=true # dev
+    url: jdbc:mysql://database-1.cb2jmajikv2k.ap-northeast-2.rds.amazonaws.com/prod_careeix?autoReconnect=true # dev
     username: admin
     password: password
     driver-class-name: com.mysql.cj.jdbc.Driver # mysql 8버전
