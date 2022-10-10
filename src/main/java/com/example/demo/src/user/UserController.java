@@ -45,7 +45,7 @@ public class UserController {
      */
     //Query String
     @ResponseBody
-    @GetMapping("/test-cicd") // (GET) 127.0.0.1:9000/app/users
+    @GetMapping("") // (GET) 127.0.0.1:9000/app/users
     public BaseResponse<List<GetUserRes>> getUsers(@RequestParam(required = false) String Email) {
         try{
             if(Email == null){
