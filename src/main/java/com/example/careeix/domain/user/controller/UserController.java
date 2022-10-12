@@ -1,7 +1,6 @@
 package com.example.careeix.domain.user.controller;
 
 
-import com.example.careeix.config.BaseResponse;
 import com.example.careeix.domain.user.dto.KakaoLoginRequest;
 import com.example.careeix.domain.user.dto.LoginResponse;
 import com.example.careeix.domain.user.dto.MessageResponse;
@@ -18,7 +17,6 @@ import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 
 import javax.validation.Valid;
@@ -28,7 +26,7 @@ import javax.validation.Valid;
 @RequestMapping("api/v1/users")
 @RequiredArgsConstructor
 @Api(tags = "User API")
-public class UserApiController {
+public class UserController {
 
     private final UserService userService;
     private final JwtService jwtService;
@@ -40,8 +38,9 @@ public class UserApiController {
      * @param nicknameDuplicateRequest - valid
      * @return ResponseEntity<MessageResponse>
      */
-    @ApiOperation(value = "닉네임 중복확인", notes = "닉네임 중복확인, valid 처리")
+    @ApiOperation(value = "닉네임 중복확인", notes = "닉네임 중복 여부 체크, 2~10글자 validation")
     @ApiResponses(value = {
+            @ApiResponse(code = 400 , message = "회원의 닉네임을 입력해주세요. \t\n 닉네임은 2~10글자의 영소문자, 숫자, 한글만 가능합니다."),
             @ApiResponse(code = 409, message = "해당 닉네임은 이미 존재하는 닉네임입니다.", response = UserNicknameDuplicateException.class)
     })
     @PostMapping("/check-nickname")
@@ -159,7 +158,7 @@ public class UserApiController {
      * @param kakaoLoginRequest
      * @return ResponseEntity
 \     */
-    @ApiOperation(value = "카카오 로그인", notes = "카카오 로그인을 합니다.")
+    @ApiOperation(value = "카카오 로그인", notes = "카카오 로그인 / 회원가입")
     @PostMapping("/kakao-login")
     public ResponseEntity<LoginResponse> loginKakaoUser(@Valid @RequestBody KakaoLoginRequest kakaoLoginRequest) {
         User user = oAuth2UserServiceKakao.validateKakaoAccessToken(kakaoLoginRequest);
