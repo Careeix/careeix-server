@@ -34,6 +34,7 @@ public class User extends BaseEntity {
     @ColumnDefault("'#1C1A81E5'")
     private String userProfileColor;
     private int userSocialProvider;
+    private String intoContent;
 
 
     /**

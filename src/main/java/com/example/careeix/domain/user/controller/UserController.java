@@ -12,7 +12,9 @@ import com.example.careeix.domain.user.exception.oauth2.kakao.*;
 import com.example.careeix.domain.user.service.OAuth2UserServiceKakao;
 import com.example.careeix.domain.user.service.UserJobService;
 import com.example.careeix.domain.user.service.UserService;
-import com.example.careeix.utils.JwtService;
+import com.example.careeix.utils.jwt.exception.ExpireAccessException;
+import com.example.careeix.utils.jwt.exception.NotFoundJwtException;
+import com.example.careeix.utils.jwt.service.JwtService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -63,10 +65,14 @@ public class UserController {
      * @param
      * @return
      */
-    @ApiOperation(value = "사용자 정보 조회", notes = "사용자 정보를 조회합니다.")
+    @ApiOperation(value = "사용자 정보 조회 - jwt 0", notes = "사용자 정보를 조회합니다.")
     @GetMapping("/profile")
-    public ResponseEntity<LoginResponse> getUserProfile() throws BaseException {
-        long userIdByJwt = jwtService.getUserIdx();
+    @ApiResponses(value = {
+            @ApiResponse(code = 400 , message = "JWT 토큰이 비어있습니다.", response = NotFoundJwtException.class),
+            @ApiResponse(code = 403 , message = "ACCESS-TOKEN이 만료되었습니다.", response = ExpireAccessException.class),
+    })
+    public ResponseEntity<LoginResponse> getUserProfile() {
+        long userIdByJwt = jwtService.getUserId();
         User user = userService.getUserByUserId(userIdByJwt);
         return getLoginResponseResponseEntity(user);
     }
