@@ -1,6 +1,7 @@
 package com.example.careeix.domain.user.controller;
 
 
+import com.example.careeix.config.BaseException;
 import com.example.careeix.domain.user.dto.KakaoLoginRequest;
 import com.example.careeix.domain.user.dto.LoginResponse;
 import com.example.careeix.domain.user.dto.MessageResponse;
@@ -57,28 +58,20 @@ public class UserController {
                 .build());
     }
 
-//    /**
-//     * 사용자 정보 조회
-//     * @param
-//     * @return
-//     */
-//    @ApiOperation(value = "사용자 정보 조회", notes = "사용자 정보를 조회합니다.")
-//    @GetMapping("/profile")
-//    public ResponseEntity<ProfileResponse> getUserProfile() {
-//        String loginId = this.jwtService.getLoginId();
-//        User user = userService.getUserProfile(loginId);
-//        List<String> userThemaName = userThemaService.getUserThemaName(user.getUserId());
-//        List<String> userRegionName = new ArrayList<>();
-//        List<UserRegionResponse> regions = userRegionService.getUserRegion(user.getUserLoginId());
-//
-//        for (UserRegionResponse response : regions) {
-//            userRegionName.add(response.getRegionName());
-//        }
-//
-//        RatingGetResponse response = ratingService.getRating(user.getUserLoginId());
-//
-//        return ResponseEntity.ok(ProfileResponse.from(user, userThemaName, userRegionName, response.getRating()));
-//    }
+    /**
+     * 사용자 정보 조회
+     * @param
+     * @return
+     */
+    @ApiOperation(value = "사용자 정보 조회", notes = "사용자 정보를 조회합니다.")
+    @GetMapping("/profile")
+    public ResponseEntity<LoginResponse> getUserProfile() throws BaseException {
+        long userIdByJwt = jwtService.getUserIdx();
+        User user = userService.getUserByUserId(userIdByJwt);
+        return getLoginResponseResponseEntity(user);
+    }
+
+
 //
 //    /**
 //     * 사용자 정보 수정
@@ -157,12 +150,12 @@ public class UserController {
 
     /**
      * 카카오 로그인 API
-     * [POST] api/v1/users/kakao-login
+     * [POST] api/v1/users/check-login
      * @param accessToken
      * @return ResponseEntity
     \     */
     @ApiOperation(value = "카카오 로그인", notes = "첫번째 호출")
-    @PostMapping("/check-kakao")
+    @PostMapping("/check-login")
     @ApiResponses(value = {
             @ApiResponse(code = 400 , message = "카카오 로그인에 실패했습니다.", response = KakaoFailException.class),
             @ApiResponse(code = 401 , message = "카카오 인증에 실패했습니다.", response = KakaoUnAuthorizedFaildException.class),
