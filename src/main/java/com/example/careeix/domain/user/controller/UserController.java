@@ -159,13 +159,13 @@ public class UserController {
     /**
      * 카카오 로그인 API
      * [POST] api/v1/users/kakao-login
-     * @param kakaoLoginRequest
+     * @param accessToken
      * @return ResponseEntity
     \     */
     @ApiOperation(value = "카카오 로그인", notes = "회원 로그인 / 200 인 경우 회원가입 api로")
     @PostMapping("/check-kakao")
-    public ResponseEntity<LoginResponse> checkKakaoUser(@Valid @RequestBody KakaoLoginRequest kakaoLoginRequest) {
-        User user = oAuth2UserServiceKakao.validateKakaoAccessToken(kakaoLoginRequest);
+    public ResponseEntity<LoginResponse> checkKakaoUser(@PathVariable String accessToken) {
+        User user = oAuth2UserServiceKakao.validateKakaoAccessToken(accessToken);
         // 회원가입 한 적 없는 경우 - 첫번째 호출
         if (user.getUserJob() == null) {
             return ResponseEntity.ok(LoginResponse.builder()
@@ -185,7 +185,7 @@ public class UserController {
     @ApiOperation(value = "카카오 회원가입", notes = "회원가입 후 로그인")
     @PostMapping("/kakao-login")
     public ResponseEntity<LoginResponse> loginKakaoUser(@Valid @RequestBody KakaoLoginRequest kakaoLoginRequest) {
-        User user = oAuth2UserServiceKakao.validateKakaoAccessToken(kakaoLoginRequest);
+        User user = oAuth2UserServiceKakao.validateKakaoAccessToken(kakaoLoginRequest.getAccessToken());
 
         // 회원가입 한 적 없는 경우 - 데이터 저장
         User finalUser = userService.insertUser(kakaoLoginRequest, user);

@@ -36,13 +36,13 @@ public class OAuth2UserServiceKakaoImpl implements OAuth2UserServiceKakao {
      */
 
     @Override
-    public User validateKakaoAccessToken(KakaoLoginRequest kakaoLoginRequest) {
-        HashMap<String, Object> kakaoUserInfo = getKakaoUserInfo(kakaoLoginRequest);
+    public User validateKakaoAccessToken(String accessToken) {
+        HashMap<String, Object> kakaoUserInfo = getKakaoUserInfo(accessToken);
         return saveOrGetKakaoUser(kakaoUserInfo);
     }
 
-    private HashMap<String, Object> getKakaoUserInfo(KakaoLoginRequest kakaoLoginRequest) {
-        String accessToken = kakaoLoginRequest.getAccessToken();
+    private HashMap<String, Object> getKakaoUserInfo(String accessToken) {
+
         HashMap<String, Object> kakaoUserInfo = new HashMap<>();
 
         try {
