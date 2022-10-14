@@ -6,8 +6,8 @@ import com.example.careeix.domain.user.dto.LoginResponse;
 import com.example.careeix.domain.user.dto.MessageResponse;
 import com.example.careeix.domain.user.dto.NicknameDuplicateRequest;
 import com.example.careeix.domain.user.entity.User;
-import com.example.careeix.domain.user.entity.UserJob;
 import com.example.careeix.domain.user.exception.UserNicknameDuplicateException;
+import com.example.careeix.domain.user.exception.oauth2.kakao.*;
 import com.example.careeix.domain.user.service.OAuth2UserServiceKakao;
 import com.example.careeix.domain.user.service.UserJobService;
 import com.example.careeix.domain.user.service.UserService;
@@ -17,7 +17,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -162,8 +161,15 @@ public class UserController {
      * @param accessToken
      * @return ResponseEntity
     \     */
-    @ApiOperation(value = "카카오 로그인", notes = "회원 로그인 / 200 인 경우 회원가입 api로")
+    @ApiOperation(value = "카카오 로그인", notes = "첫번째 호출")
     @PostMapping("/check-kakao")
+    @ApiResponses(value = {
+            @ApiResponse(code = 400 , message = "카카오 로그인에 실패했습니다.", response = KakaoFailException.class),
+            @ApiResponse(code = 401 , message = "카카오 인증에 실패했습니다.", response = KakaoUnAuthorizedFaildException.class),
+            @ApiResponse(code = 405 , message = "카카오의 지정된 요청 방식 이외의 프로토콜을 전달했습니다.", response = KakaoProtocolException.class),
+            @ApiResponse(code = 500 , message = "카카오 API URL이 잘못되었습니다.", response = KakaoUrlException.class),
+            @ApiResponse(code = 500 , message = "카카오 API 응답을 읽는데 실패했습니다.", response = KakaoApiResponseException.class),
+    })
     public ResponseEntity<LoginResponse> checkKakaoUser(@PathVariable String accessToken) {
         User user = oAuth2UserServiceKakao.validateKakaoAccessToken(accessToken);
         // 회원가입 한 적 없는 경우 - 첫번째 호출
@@ -182,8 +188,15 @@ public class UserController {
      * @param kakaoLoginRequest
      * @return ResponseEntity
 \     */
-    @ApiOperation(value = "카카오 회원가입", notes = "회원가입 후 로그인")
+    @ApiOperation(value = "카카오 로그인", notes = "회원가입 후 로그인")
     @PostMapping("/kakao-login")
+    @ApiResponses(value = {
+            @ApiResponse(code = 400 , message = "카카오 로그인에 실패했습니다.", response = KakaoFailException.class),
+            @ApiResponse(code = 401 , message = "카카오 인증에 실패했습니다.", response = KakaoUnAuthorizedFaildException.class),
+            @ApiResponse(code = 405 , message = "카카오의 지정된 요청 방식 이외의 프로토콜을 전달했습니다.", response = KakaoProtocolException.class),
+            @ApiResponse(code = 500 , message = "카카오 API URL이 잘못되었습니다.", response = KakaoUrlException.class),
+            @ApiResponse(code = 500 , message = "카카오 API 응답을 읽는데 실패했습니다.", response = KakaoApiResponseException.class),
+    })
     public ResponseEntity<LoginResponse> loginKakaoUser(@Valid @RequestBody KakaoLoginRequest kakaoLoginRequest) {
         User user = oAuth2UserServiceKakao.validateKakaoAccessToken(kakaoLoginRequest.getAccessToken());
 
@@ -198,16 +211,17 @@ public class UserController {
 
     private ResponseEntity<LoginResponse> getLoginResponseResponseEntity(User user) {
         List<String> userJobList = userJobService.getUserJobName(user.getUserId());
+        String jwt = jwtService.createJwt(user.getUserId());
         return ResponseEntity.ok(LoginResponse.builder()
                 .userId(user.getUserId())
                 .userWork(user.getUserWork())
                 .userProfileColor(user.getUserProfileColor())
                 .userSocialProvider(user.getUserSocialProvider())
                 .userDetailJobs(userJobList)
-                .jwt(jwtService.createJwt(Math.toIntExact(user.getUserId())))
                 .userNickname(user.getUserNickName())
                 .userEmail(user.getUserEmail())
                 .userJob(user.getUserJob())
+                .jwt(jwt)
                 .message("로그인에 성공하였습니다.")
                 .build());
     }
