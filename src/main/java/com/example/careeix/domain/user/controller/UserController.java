@@ -6,8 +6,10 @@ import com.example.careeix.domain.user.dto.LoginResponse;
 import com.example.careeix.domain.user.dto.MessageResponse;
 import com.example.careeix.domain.user.dto.NicknameDuplicateRequest;
 import com.example.careeix.domain.user.entity.User;
+import com.example.careeix.domain.user.entity.UserJob;
 import com.example.careeix.domain.user.exception.UserNicknameDuplicateException;
 import com.example.careeix.domain.user.service.OAuth2UserServiceKakao;
+import com.example.careeix.domain.user.service.UserJobService;
 import com.example.careeix.domain.user.service.UserService;
 import com.example.careeix.utils.JwtService;
 import io.swagger.annotations.Api;
@@ -15,11 +17,13 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 
 import javax.validation.Valid;
+import java.util.List;
 
 
 @RestController
@@ -29,6 +33,7 @@ import javax.validation.Valid;
 public class UserController {
 
     private final UserService userService;
+    private final UserJobService userJobService;
     private final JwtService jwtService;
     private final OAuth2UserServiceKakao oAuth2UserServiceKakao;
 
@@ -151,6 +156,25 @@ public class UserController {
      * OAuth2
      */
 
+    /**
+     * 카카오 로그인 API
+     * [POST] api/v1/users/kakao-login
+     * @param kakaoLoginRequest
+     * @return ResponseEntity
+    \     */
+    @ApiOperation(value = "카카오 로그인", notes = "회원 로그인 / 200 인 경우 회원가입 api로")
+    @PostMapping("/check-kakao")
+    public ResponseEntity<LoginResponse> checkKakaoUser(@Valid @RequestBody KakaoLoginRequest kakaoLoginRequest) {
+        User user = oAuth2UserServiceKakao.validateKakaoAccessToken(kakaoLoginRequest);
+        // 회원가입 한 적 없는 경우 - 첫번째 호출
+        if (user.getUserJob() == null) {
+            return ResponseEntity.ok(LoginResponse.builder()
+                    .message("회원가입을 진행해주세요")
+                    .build());
+        }
+        return getLoginResponseResponseEntity(user);
+    }
+
 
     /**
      * 카카오 로그인 API
@@ -158,15 +182,32 @@ public class UserController {
      * @param kakaoLoginRequest
      * @return ResponseEntity
 \     */
-    @ApiOperation(value = "카카오 로그인", notes = "카카오 로그인 / 회원가입")
+    @ApiOperation(value = "카카오 회원가입", notes = "회원가입 후 로그인")
     @PostMapping("/kakao-login")
     public ResponseEntity<LoginResponse> loginKakaoUser(@Valid @RequestBody KakaoLoginRequest kakaoLoginRequest) {
         User user = oAuth2UserServiceKakao.validateKakaoAccessToken(kakaoLoginRequest);
+
+        // 회원가입 한 적 없는 경우 - 데이터 저장
+        User finalUser = userService.insertUser(kakaoLoginRequest, user);
+        userJobService.createUserJob(kakaoLoginRequest.getUserDetailJob(), user);
+
+
+        // 로그인 정보 불러오기
+        return getLoginResponseResponseEntity(finalUser);
+    }
+
+    private ResponseEntity<LoginResponse> getLoginResponseResponseEntity(User user) {
+        List<String> userJobList = userJobService.getUserJobName(user.getUserId());
         return ResponseEntity.ok(LoginResponse.builder()
+                .userId(user.getUserId())
+                .userWork(user.getUserWork())
+                .userProfileColor(user.getUserProfileColor())
+                .userSocialProvider(user.getUserSocialProvider())
+                .userDetailJobs(userJobList)
                 .jwt(jwtService.createJwt(Math.toIntExact(user.getUserId())))
                 .userNickname(user.getUserNickName())
-                        .userEmail(user.getUserEmail())
-                        .userJob(user.getUserJob())
+                .userEmail(user.getUserEmail())
+                .userJob(user.getUserJob())
                 .message("로그인에 성공하였습니다.")
                 .build());
     }

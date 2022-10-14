@@ -5,6 +5,9 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import javax.persistence.EntityManager;
 import java.util.List;
+//import static com.example.careeix.domain.user.entity.QUser.user;
+//import static com.example.careeix.domain.user.entity.QUserDetailJob.userDetailJob1;
+
 
 
 public class UserRepositoryImpl implements UserRepositoryCustom {
@@ -20,13 +23,11 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
 //    public List<String> findJobNamesByUserId(Long userId) {
 //        List<String> content = queryFactory
 //                .select(
-//
+//                        userDetailJob1.userDetailJob
 //                )
-//                .from(user)
-//                .leftJoin(userThema)
-//                .on(user.userId.eq(userThema.user.userId))
-//                .leftJoin(thema)
-//                .on(diaryThema.thema.themaId.eq(thema.themaId))
+//                .from(userDetailJob1)
+//                .leftJoin(userDetailJob1)
+//                .on(user.userId.eq(userDetailJob1.userId))
 //                .where(user.userId.eq(userId), diaryThema.diaryThemaId.isNotNull())
 //                .fetch();
 //        return content;

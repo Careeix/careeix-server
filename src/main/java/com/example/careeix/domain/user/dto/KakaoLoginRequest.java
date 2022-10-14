@@ -1,5 +1,6 @@
 package com.example.careeix.domain.user.dto;
 
+import com.example.careeix.domain.user.entity.User;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -21,4 +22,12 @@ public class KakaoLoginRequest {
     private int userWork;
     private List<String> userDetailJob;
 
+    public User toEntity(Long userId) {
+        User user = new User();
+        user.setUserId(userId);
+        user.setUserNickName(this.nickname);
+        user.setUserJob(this.job);
+        user.setUserWork(this.userWork);
+        return user;
+    }
 }

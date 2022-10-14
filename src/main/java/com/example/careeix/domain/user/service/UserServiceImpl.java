@@ -1,14 +1,13 @@
 package com.example.careeix.domain.user.service;
 
 
+import com.example.careeix.domain.user.dto.KakaoLoginRequest;
 import com.example.careeix.domain.user.entity.User;
 import com.example.careeix.domain.user.exception.UserEmailDuplicateException;
 import com.example.careeix.domain.user.exception.UserNicknameDuplicateException;
 import com.example.careeix.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Optional;
 
@@ -42,6 +41,14 @@ public class UserServiceImpl implements UserService{
         Optional<User> user = userRepository.findByUserEmail(userEmail);
 
         if (!user.isEmpty()) throw new UserEmailDuplicateException();
+    }
+
+    @Override
+    public User insertUser(KakaoLoginRequest kakaoLoginRequest, User kakaoUser) {
+        userRepository.save(kakaoUser);
+        User user = kakaoLoginRequest.toEntity(kakaoUser.getUserId());
+
+        return userRepository.save(user);
     }
 
 

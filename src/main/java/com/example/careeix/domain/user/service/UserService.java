@@ -1,14 +1,9 @@
 package com.example.careeix.domain.user.service;
 
+import com.example.careeix.domain.user.dto.KakaoLoginRequest;
 import com.example.careeix.domain.user.entity.User;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
-import java.io.UnsupportedEncodingException;
-import java.net.URISyntaxException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 
 public interface UserService {
 
@@ -17,6 +12,7 @@ public interface UserService {
 
     void userEmailDuplicateCheck(String userEmail);
 
+    User insertUser(@Valid KakaoLoginRequest kakaoLoginRequest, User user);
 
 
 //    User updateUserProfile(String loginId, @Valid UserProfileRequest userProfileRequest, MultipartFile file);

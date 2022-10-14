@@ -72,12 +72,10 @@ public class OAuth2UserServiceKakaoImpl implements OAuth2UserServiceKakao {
 
                     String id = kakaoAccount.getAsJsonObject().get(EOAuth2UserServiceImpl.eIdToken.getValue()).getAsString();
                     String name = kakaoAccount.getAsJsonObject().get(EOAuth2UserServiceImpl.eNameAttribute.getValue()).getAsString();
-                    String email = kakaoAccount.getAsJsonObject().get(EOAuth2UserServiceImpl.eEmailAttribute.getValue()).getAsString();
                     String profileImage = properties.getAsJsonObject().get(EOAuth2UserServiceImpl.eKakaoProfileImageAttribute.getValue()).getAsString();
 
                     kakaoUserInfo.put(EOAuth2UserServiceImpl.eIdToken.getValue(), id);
                     kakaoUserInfo.put(EOAuth2UserServiceImpl.eNameAttribute.getValue(), name);
-                    kakaoUserInfo.put(EOAuth2UserServiceImpl.eEmailAttribute.getValue(), email);
                     kakaoUserInfo.put(EOAuth2UserServiceImpl.eKakaoProfileImageAttribute.getValue(), profileImage);
 
                     br.close();
@@ -102,9 +100,9 @@ public class OAuth2UserServiceKakaoImpl implements OAuth2UserServiceKakao {
     }
 
     private User saveOrGetKakaoUser(HashMap<String, Object> kakaoUserInfo) {
+        // 회원가입을 한 유저면 반환, 아니면 셋팅
         User user = userRepository.findBySocialId(kakaoUserInfo.get(EOAuth2UserServiceImpl.eIdToken).toString())
                 .orElse(User.toEntityOfKakaoUser(kakaoUserInfo));
-        userRepository.save(user);
         return user;
     }
 }
