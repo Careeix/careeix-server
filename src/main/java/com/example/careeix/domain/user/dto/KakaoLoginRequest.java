@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 import java.util.List;
 
 @Getter
@@ -17,9 +19,15 @@ public class KakaoLoginRequest {
 
     @ApiModelProperty(notes = "카카오 엑세스 토큰 , 입력 값")
     private String accessToken;
+    @NotBlank(message = "회원의 닉네임을 입력해주세요.")
     private String nickname;
+
+    @NotBlank(message = "회원의 직업을 입력해주세요.")
     private String job;
+    @NotBlank(message = "회원의 년차를 입력해주세요.")
     private int userWork;
+
+    @Size(min = 1, max = 3, message = "상세 직업은 1개 이상 3개 이하로 작성해야 합니다.")
     private List<String> userDetailJob;
 
     public User toEntity(Long userId) {

@@ -2,10 +2,7 @@ package com.example.careeix.domain.user.controller;
 
 
 import com.example.careeix.config.BaseException;
-import com.example.careeix.domain.user.dto.KakaoLoginRequest;
-import com.example.careeix.domain.user.dto.LoginResponse;
-import com.example.careeix.domain.user.dto.MessageResponse;
-import com.example.careeix.domain.user.dto.NicknameDuplicateRequest;
+import com.example.careeix.domain.user.dto.*;
 import com.example.careeix.domain.user.entity.User;
 import com.example.careeix.domain.user.exception.UserNicknameDuplicateException;
 import com.example.careeix.domain.user.exception.oauth2.kakao.*;
@@ -22,8 +19,11 @@ import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import java.util.List;
 
@@ -60,6 +60,7 @@ public class UserController {
                 .build());
     }
 
+
     /**
      * 사용자 정보 조회
      * @param
@@ -78,75 +79,89 @@ public class UserController {
     }
 
 
-//
-//    /**
-//     * 사용자 정보 수정
-//     * @param userProfileRequest, file, request
-//     * @return ResponseEntity<String>
-//     */
-//    @ApiOperation(value = "사용자 정보 수정", notes = "사용자 정보를 수정합니다.", produces = "multipart/form-data")
-//    @ApiResponses(value = {
-//            @ApiResponse(code = 409, message = "해당 닉네임은 이미 존재하는 닉네임입니다.(U0009) / 해당 이메일은 이미 존재하는 이메일입니다.(U0011)", response = UserNicknameDuplicateException.class),
-//            @ApiResponse(code = 409, message = "해당 이메일은 이미 존재하는 이메일입니다.(U0011)", response = UserEmailDuplicateException.class)
-//    })
-//    @PostMapping("/update-profile")
-//    public ResponseEntity<MessageResponse> updateUserProfile(@Valid @ModelAttribute UserProfileRequest userProfileRequest,
-//                                                    @RequestParam(required = false) MultipartFile file) {
-//
-//        userThemaService.checkThemaName(userProfileRequest.getUserThemaName());
-//        List<String> list = userProfileRequest.getUserRegionName();
-//        String[] userRegionName = list.toArray(new String[list.size()]);
-//        userRegionService.checkRegionName(userProfileRequest.getUserRegionName().toArray(userRegionName));
-//
-//        String loginId = jwtService.getLoginId();
-//        User user = userService.updateUserProfile(loginId, userProfileRequest, file);
-//        userThemaService.updateUserThema(userProfileRequest.getUserThemaName(), user);
-//
-//        UpdateUserRegionRequest request = new UpdateUserRegionRequest();
-//        request.setUserRegions(userRegionName);
-//        userRegionService.updateUserRegion(request, user.getUserLoginId());
-//
-//        return ResponseEntity.ok(MessageResponse.builder()
-//                .message("사용자 정보가 수정되었습니다.")
-//                .build());
-//    }
-//
-//
-//
-//    /**
-//     * 사용자 로그아웃
-//     * @param request
-//     * @return ResponseEntity<MessageResponse>
-//     */
-//    @ApiOperation(value = "사용자 로그아웃", notes = "사용자 로그아웃을 합니다.")
-//    @GetMapping("/logout")
-//    public ResponseEntity<MessageResponse> logoutUser(HttpServletRequest request) {
-//        HttpSession session = request.getSession();
-//        session.invalidate();
-//
-//        return ResponseEntity.ok(MessageResponse.builder()
-//                .message("로그아웃에 성공했습니다.")
-//                .build());
-//    }
-//
-//    /**
-//     * 회원 탈퇴
-//     * @param withdrawUserRequest, request
-//     * @return ResponseEntity<MessageResponse>
-//     */
-//    @ApiOperation(value = "회원 탈퇴", notes = "회원 탈퇴를 합니다.")
-//    @ApiResponses(value = {
-//            @ApiResponse(code = 400, message = "입력하신 비밀번호가 기존의 비밀번호와 일치하지 않습니다.(U0005)", response = NotEqualPasswordException.class)
-//    })
-//    @PostMapping("/withdraw")
-//    public ResponseEntity<MessageResponse> withdrawUser(@Valid @RequestBody WithdrawUserRequest withdrawUserRequest) {
-//        String loginId = jwtService.getLoginId();
-//        userService.withdrawUser(withdrawUserRequest, loginId);
-//
-//        return ResponseEntity.ok(MessageResponse.builder()
-//                .message("회원 탈퇴가 완료되었습니다.")
-//                .build());
-//    }
+
+    /**
+     * 사용자 프로필 수정
+     * @param nickName, file
+     * @return ResponseEntity<String>
+     */
+    @ApiOperation(value = "사용자 프로필 수정  - jwt 0", notes = "사용자 프로필을 수정합니다.", produces = "multipart/form-data")
+    @ApiResponses(value = {
+            @ApiResponse(code = 400 , message = "회원의 닉네임을 입력해주세요. \t\n 닉네임은 2~10글자의 영소문자, 숫자, 한글만 가능합니다."),
+            @ApiResponse(code = 400 , message = "JWT 토큰이 비어있습니다.", response = NotFoundJwtException.class),
+            @ApiResponse(code = 403 , message = "ACCESS-TOKEN이 만료되었습니다.", response = ExpireAccessException.class),
+            @ApiResponse(code = 409, message = "해당 닉네임은 이미 존재하는 닉네임입니다.", response = UserNicknameDuplicateException.class),
+    })
+    @PostMapping("/update-profile")
+    public ResponseEntity<MessageResponse> updateUserProfile(@Valid @ModelAttribute UserProfileRequest userProfileRequest,
+                                                    @RequestParam(required = false) MultipartFile file) {
+
+        long userId = jwtService.getUserId();
+        User user = userService.updateUserProfile(userId, userProfileRequest.getUserNickName(), file);
+
+        return ResponseEntity.ok(MessageResponse.builder()
+                .message("사용자 프로필이 수정되었습니다.")
+                .build());
+    }
+
+
+    /**
+     * 사용자 정보 수정
+     * @param userInfoRequest
+     * @return ResponseEntity<String>
+     */
+    @ApiOperation(value = "사용자 정보 수정  - jwt 0", notes = "사용자 정보를 수정합니다")
+    @ApiResponses(value = {
+            @ApiResponse(code = 400 , message = "JWT 토큰이 비어있습니다.", response = NotFoundJwtException.class),
+            @ApiResponse(code = 403 , message = "ACCESS-TOKEN이 만료되었습니다.", response = ExpireAccessException.class)
+    })
+    @PostMapping("/update-info")
+    public ResponseEntity<MessageResponse> updateUserInfo(@Valid @ModelAttribute UserInfoRequest userInfoRequest) {
+
+        long userId = jwtService.getUserId();
+        User user = userService.updateUserInfo(userId, userInfoRequest);
+
+        return ResponseEntity.ok(MessageResponse.builder()
+                .message("사용자 정보가 수정되었습니다.")
+                .build());
+    }
+
+
+
+    /**
+     * 사용자 로그아웃
+     * @param request
+     * @return ResponseEntity<MessageResponse>
+     */
+    @ApiOperation(value = "사용자 로그아웃", notes = "사용자 로그아웃을 합니다.")
+    @GetMapping("/logout")
+    public ResponseEntity<MessageResponse> logoutUser(HttpServletRequest request) {
+        HttpSession session = request.getSession();
+        session.invalidate();
+
+        return ResponseEntity.ok(MessageResponse.builder()
+                .message("로그아웃에 성공했습니다.")
+                .build());
+    }
+
+    /**
+     * 회원 탈퇴
+     * @return ResponseEntity<MessageResponse>
+     */
+    @ApiOperation(value = "회원 탈퇴 - jwt 0", notes = "회원 탈퇴를 합니다.")
+    @PostMapping("/withdraw")
+    @ApiResponses(value = {
+            @ApiResponse(code = 400 , message = "JWT 토큰이 비어있습니다.", response = NotFoundJwtException.class),
+            @ApiResponse(code = 403 , message = "ACCESS-TOKEN이 만료되었습니다.", response = ExpireAccessException.class),
+    })
+    public ResponseEntity<MessageResponse> withdrawUser() {
+        long userId = jwtService.getUserId();
+        userService.withdrawUser(userId);
+
+        return ResponseEntity.ok(MessageResponse.builder()
+                .message("회원 탈퇴가 완료되었습니다.")
+                .build());
+    }
 
 
 

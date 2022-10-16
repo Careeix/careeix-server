@@ -1,23 +1,31 @@
 package com.example.careeix.domain.user.service;
 
 
+import com.example.careeix.domain.myfile.entity.MyFile;
+import com.example.careeix.domain.myfile.service.MyFileService;
+import com.example.careeix.domain.user.constant.UserConstants;
 import com.example.careeix.domain.user.dto.KakaoLoginRequest;
+import com.example.careeix.domain.user.dto.UserInfoRequest;
 import com.example.careeix.domain.user.entity.User;
-import com.example.careeix.domain.user.exception.UserEmailDuplicateException;
+import com.example.careeix.domain.user.exception.NotFoundUserException;
 import com.example.careeix.domain.user.exception.UserNicknameDuplicateException;
 import com.example.careeix.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.jdo.annotations.Transactional;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class UserServiceImpl implements UserService{
+public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
 
- 
+    private final MyFileService myFileService;
+
+
     /**
      * 닉네임 중복 확인
      * @param userNickName
@@ -31,24 +39,30 @@ public class UserServiceImpl implements UserService{
     }
 
 
-    /**
-     * 이메일 중복 확인
-     * @param userEmail
-     * @return
-     */
-    @Override
-    public void userEmailDuplicateCheck(String userEmail) {
-        Optional<User> user = userRepository.findByUserEmail(userEmail);
-
-        if (!user.isEmpty()) throw new UserEmailDuplicateException();
-    }
-
     @Override
     public User insertUser(KakaoLoginRequest kakaoLoginRequest, User kakaoUser) {
         userRepository.save(kakaoUser);
         User user = kakaoLoginRequest.toEntity(kakaoUser.getUserId());
 
         return userRepository.save(user);
+    }
+
+
+    @Override
+    public User updateUserProfile(long userId, String nickName, MultipartFile file) {
+        User user = this.getUserByUserId(userId);
+
+        if (!user.getUserNickName().equals(nickName))
+            this.userNicknameDuplicateCheck(nickName);
+
+        user.setUserNickName(nickName);
+
+        if (file != null) {
+            MyFile profileImg = myFileService.saveImage(file);
+            user.setUserProfileImg(profileImg.getFileKey());
+        }
+
+        return user;
     }
 
 
@@ -59,49 +73,31 @@ public class UserServiceImpl implements UserService{
      */
 
     @Override
-    public User getUserByUserId(Long userId) { return userRepository.findByUserId(userId).get();}
+    public User getUserByUserId(Long userId) {
+        return userRepository.findByUserId(userId).orElseThrow(NotFoundUserException::new);
+    }
 
-//    /**
-//     * 사용자 정보 수정
-//     * @param loginId, userProfileRequest, file
-//     * @return User
-//     */
-//    @Override
-//    @Transactional
-//    public User updateUserProfile(String loginId, UserProfileRequest profileRequest, MultipartFile file) {
-//        User user = this.getUserProfile(loginId);
-//
-//        if (!user.getUserNickName().equals(profileRequest.getUserNickName()))
-//            this.userNicknameDuplicateCheck(profileRequest.getUserNickName());
-//
-//        user.setUserNickName(profileRequest.getUserNickName());
-//
-//        if (file != null) {
-//            MyFile profileImg = myFileService.saveImage(file);
-//            user.setUserProfileImg(profileImg.getFileKey());
-//        }
-//
-//        return user;
-//
-//    }
+    /**
+     * 회원 탈퇴
+     * @param userId
+     * @return
+     */
+    @Override
+    @Transactional
+    public void withdrawUser(long userId) {
+        User user = this.getUserByUserId(userId);
+        user.setStatus(UserConstants.eUser.eDELETE.ordinal());
+    }
 
-//    /**
-//     * 회원 탈퇴
-//     * @param withdrawUserRequest, loginId
-//     * @return
-//     */
-//    @Override
-//    @Transactional
-//    public void withdrawUser(WithdrawUserRequest withdrawUserRequest, String loginId) {
-//        User user = this.getUserProfile(loginId);
-//
-//        if (!user.getUserPassword().equals(sha256Util.encrypt(withdrawUserRequest.getPassword()))) throw new NotEqualPasswordException();
-//        user.setUserState(UserConstants.eUser.eDELETE.getValue());
-//    }
-//
-//    public User getUserByUserId(Long userId) {
-//        return this.userRepository.findByUserId(userId).orElseThrow(NotFoundUserException::new);
-//    }
-//
+    @Override
+    public User updateUserInfo(long userId, UserInfoRequest userInfoRequest) {
+        User user = this.getUserByUserId(userId);
+//        user
+        return null;
+    }
 
 }
+
+
+
+
