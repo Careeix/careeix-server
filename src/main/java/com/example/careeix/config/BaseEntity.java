@@ -3,6 +3,7 @@ package com.example.careeix.config;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.ColumnDefault;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -24,7 +25,7 @@ public class BaseEntity {
     @LastModifiedDate
     @Column(updatable = false)
     private LocalDateTime updatedAt;
-
+    @ColumnDefault("1")
     private int status;
 
 }

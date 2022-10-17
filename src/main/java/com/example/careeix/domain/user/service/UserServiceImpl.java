@@ -92,8 +92,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public User updateUserInfo(long userId, UserInfoRequest userInfoRequest) {
         User user = this.getUserByUserId(userId);
-//        user
-        return null;
+        user.setUserJob(userInfoRequest.getUserJob());
+        user.setUserWork(userInfoRequest.getUserWork());
+        user.setIntoContent(user.getIntoContent());
+        return user;
+
     }
 
 }

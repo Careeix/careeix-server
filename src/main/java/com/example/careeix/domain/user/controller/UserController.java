@@ -82,7 +82,7 @@ public class UserController {
 
     /**
      * 사용자 프로필 수정
-     * @param nickName, file
+     * @param userProfileRequest, file
      * @return ResponseEntity<String>
      */
     @ApiOperation(value = "사용자 프로필 수정  - jwt 0", notes = "사용자 프로필을 수정합니다.", produces = "multipart/form-data")
@@ -120,6 +120,7 @@ public class UserController {
 
         long userId = jwtService.getUserId();
         User user = userService.updateUserInfo(userId, userInfoRequest);
+        userJobService.updateUserJob(user, userInfoRequest.getUserDetailJob());
 
         return ResponseEntity.ok(MessageResponse.builder()
                 .message("사용자 정보가 수정되었습니다.")

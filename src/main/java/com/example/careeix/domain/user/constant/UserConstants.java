@@ -9,8 +9,9 @@ public class UserConstants {
     @AllArgsConstructor
     public enum eUser {
 
+        eDELETE("DELETED"),
         eACTIVE("ACTIVE"),
-        eDELETE("DELETED");
+        ;
 
         private final String value;
     }

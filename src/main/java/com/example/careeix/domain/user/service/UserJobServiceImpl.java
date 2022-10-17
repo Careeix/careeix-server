@@ -52,17 +52,18 @@ public class UserJobServiceImpl implements UserJobService{
                 userJob.setJob(jobRepository.findByJobName(jobName));
                 em.persist(userJob);
             }
-
-
         }
+    }
 
-        /**
-         userJob list update
-         */
+    /**
+     userJob list update
+     */
+    @Override
+    public void updateUserJob(User user, List<String> jobNameList) {
+        List<UserJob> userJobList = userJobRepository.findByUser_UserId(user.getUserId());
+        userJobRepository.deleteAll(userJobList);
 
-
-
-
+        if (!userJobList.isEmpty()) this.createUserJob(jobNameList, user);
     }
 
 
