@@ -25,7 +25,7 @@ public class BaseEntity {
     @LastModifiedDate
     @Column(updatable = false)
     private LocalDateTime updatedAt;
-    @ColumnDefault("1")
+    @ColumnDefault("'1'")
     private int status;
 
 }

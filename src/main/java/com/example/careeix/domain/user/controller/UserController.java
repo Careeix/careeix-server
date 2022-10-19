@@ -28,6 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Objects;
 
 
 @RestController
@@ -160,6 +161,7 @@ public class UserController {
                 .build());
     }
 
+
     /**
      * 회원 탈퇴
      * @return ResponseEntity<MessageResponse>
@@ -191,7 +193,7 @@ public class UserController {
      * @param accessToken
      * @return ResponseEntity
     \     */
-    @ApiOperation(value = "카카오 로그인", notes = "첫번째 호출")
+    @ApiOperation(value = "카카오 로그인", notes = "첫번째 호출 - userId 0이나 jwt null이면 추가정보 받고 kakao-login api로")
     @PostMapping("/check-login/{accessToken}")
     @ApiResponses(value = {
             @ApiResponse(code = 400 , message = "카카오 로그인에 실패했습니다.", response = KakaoFailException.class),
@@ -218,25 +220,36 @@ public class UserController {
      * @param kakaoLoginRequest
      * @return ResponseEntity
 \     */
-    @ApiOperation(value = "카카오 로그인", notes = "회원가입 후 로그인")
+    @ApiOperation(value = "카카오 로그인", notes = "회원가입 후 로그인 - 추가 정보 받고 호출하는 api, 연차 0,1,2,3 으로 전달해주세요")
     @PostMapping("/kakao-login")
     @ApiResponses(value = {
             @ApiResponse(code = 400 , message = "카카오 로그인에 실패했습니다.", response = KakaoFailException.class),
+            @ApiResponse(code = 400 , message = "회원의 닉네임을 입력해주세요. \t\n 닉네임은 2~10글자의 영소문자, 숫자, 한글만 가능합니다."),
             @ApiResponse(code = 401 , message = "카카오 인증에 실패했습니다.", response = KakaoUnAuthorizedFaildException.class),
             @ApiResponse(code = 405 , message = "카카오의 지정된 요청 방식 이외의 프로토콜을 전달했습니다.", response = KakaoProtocolException.class),
+            @ApiResponse(code = 409, message = "해당 닉네임은 이미 존재하는 닉네임입니다.", response = UserNicknameDuplicateException.class),
             @ApiResponse(code = 500 , message = "카카오 API URL이 잘못되었습니다.", response = KakaoUrlException.class),
             @ApiResponse(code = 500 , message = "카카오 API 응답을 읽는데 실패했습니다.", response = KakaoApiResponseException.class),
     })
     public ApplicationResponse<LoginResponse> loginKakaoUser(@Valid @RequestBody KakaoLoginRequest kakaoLoginRequest) {
         User user = oAuth2UserServiceKakao.validateKakaoAccessToken(kakaoLoginRequest.getAccessToken());
+        if(!Objects.equals(user.getUserNickName(), kakaoLoginRequest.getNickname())){
+            userService.userNicknameDuplicateCheck(kakaoLoginRequest.getNickname());
+
+        }
 
         // 회원가입 한 적 없는 경우 - 데이터 저장
-        User finalUser = userService.insertUser(kakaoLoginRequest, user);
-        userJobService.createUserJob(kakaoLoginRequest.getUserDetailJob(), user);
+        try {
+            User finalUser = userService.insertUser(kakaoLoginRequest, user);
+            userJobService.createUserJob(kakaoLoginRequest.getUserDetailJob(), finalUser);
+            return getLoginResponseResponseEntity(finalUser);
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
 
         // 로그인 정보 불러오기
-        return getLoginResponseResponseEntity(finalUser);
     }
 
     private ApplicationResponse<LoginResponse> getLoginResponseResponseEntity(User user) {

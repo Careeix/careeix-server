@@ -49,9 +49,8 @@ public class User extends BaseEntity {
 
     public static User toEntityOfKakaoUser(HashMap<String, Object> userInfo) {
         return User.builder()
-                .socialId(userInfo.get(eIdToken.getValue()).toString())
-                .userEmail(userInfo.get(eEmailAttribute.getValue()).toString())
-                .userProfileImg(userInfo.get(eKakaoProfileImageAttribute).toString())
+                .socialId((String) userInfo.get("id"))
+                .userEmail((String) userInfo.get("email"))
                 .userSocialProvider(eKakao.ordinal())
                 .build();
     }

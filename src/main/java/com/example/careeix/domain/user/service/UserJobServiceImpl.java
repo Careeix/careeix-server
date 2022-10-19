@@ -45,14 +45,20 @@ public class UserJobServiceImpl implements UserJobService{
     @Override
     @Transactional
     public void createUserJob(List<String> jobNameList, User user) {
-        if (!jobNameList.isEmpty()) {
-
+        try {
             for (String jobName : jobNameList) {
+                Job job = jobRepository.findByJobName(jobName)
+                        .orElse(jobRepository.save(Job.builder()
+                                .jobName(jobName)
+                                .build()));
+
                 UserJob userJob = new UserJob();
                 userJob.setUser(user);
-                userJob.setJob(jobRepository.findByJobName(jobName));
-                em.persist(userJob);
-            }
+                userJobRepository.save(UserJob.toEntityOfUserJob(userJob.getUser(), job));
+        }
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

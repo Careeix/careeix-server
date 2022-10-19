@@ -41,8 +41,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User insertUser(KakaoLoginRequest kakaoLoginRequest, User kakaoUser) {
-        userRepository.save(kakaoUser);
-        User user = kakaoLoginRequest.toEntity(kakaoUser.getUserId());
+        User user = kakaoLoginRequest.toEntity(kakaoUser.getUserId(), kakaoUser);
 
         return userRepository.save(user);
     }
