@@ -9,8 +9,9 @@ public class UserConstants {
     @AllArgsConstructor
     public enum eUser {
 
-        eACTIVE("active"),
-        eDELETE("DELETED");
+        eDELETE("DELETED"),
+        eACTIVE("ACTIVE"),
+        ;
 
         private final String value;
     }
@@ -29,17 +30,14 @@ public class UserConstants {
 
         eKakaoProfileImageAttribute("profile_image"),
         eKakaoProperties("properties"),
-        eKakaoAcount("kakao_account"),
+        eKakaoAcount("kakao_account");
 
-        eGoogleTokenInvalid("잘못된 토큰입니다.");
         private final String value;
     }
 
     @Getter
     @AllArgsConstructor
     public enum ESocialProvider{
-        eGoogle,
-        eNaver,
         eKakao,
         eApple;
     }

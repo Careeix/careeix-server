@@ -23,6 +23,7 @@ public class LoginResponse {
     private String userEmail;
     private String userProfileImg;
     private String userProfileColor;
+    private String userIntro;
     private int userSocialProvider;
 
 

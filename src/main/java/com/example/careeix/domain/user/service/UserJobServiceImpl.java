@@ -2,6 +2,7 @@ package com.example.careeix.domain.user.service;
 
 import com.example.careeix.domain.job.entity.Job;
 import com.example.careeix.domain.job.repository.JobRepository;
+import com.example.careeix.domain.user.dto.ProfileRecommendResponse;
 import com.example.careeix.domain.user.entity.User;
 import com.example.careeix.domain.user.entity.UserJob;
 import com.example.careeix.domain.user.repository.UserJobRepository;
@@ -44,25 +45,40 @@ public class UserJobServiceImpl implements UserJobService{
     @Override
     @Transactional
     public void createUserJob(List<String> jobNameList, User user) {
-        if (!jobNameList.isEmpty()) {
-
+        try {
             for (String jobName : jobNameList) {
+                Job job = jobRepository.findByJobName(jobName)
+                        .orElse(jobRepository.save(Job.builder()
+                                .jobName(jobName)
+                                .build()));
+
                 UserJob userJob = new UserJob();
                 userJob.setUser(user);
-                userJob.setJob(jobRepository.findByJobName(jobName));
-                em.persist(userJob);
-            }
-
-
+                userJobRepository.save(UserJob.toEntityOfUserJob(userJob.getUser(), job));
         }
 
-        /**
-         userJob list update
-         */
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
+    /**
+     userJob list update
+     */
+    @Override
+    public void updateUserJob(User user, List<String> jobNameList) {
+        List<UserJob> userJobList = userJobRepository.findByUser_UserId(user.getUserId());
+        userJobRepository.deleteAll(userJobList);
 
+        if (!userJobList.isEmpty()) this.createUserJob(jobNameList, user);
+    }
 
+    @Override
+    public List<ProfileRecommendResponse> getProfile(User user) {
+        List<String> userJobList = this.getUserJobName(user.getUserId());
+        ProfileRecommendResponse.from(user, userJobList);
 
+        return null;
     }
 
 
