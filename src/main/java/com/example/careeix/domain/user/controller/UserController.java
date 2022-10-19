@@ -9,6 +9,7 @@ import com.example.careeix.domain.user.exception.oauth2.kakao.*;
 import com.example.careeix.domain.user.service.OAuth2UserServiceKakao;
 import com.example.careeix.domain.user.service.UserJobService;
 import com.example.careeix.domain.user.service.UserService;
+import com.example.careeix.utils.dto.ApplicationResponse;
 import com.example.careeix.utils.jwt.exception.ExpireAccessException;
 import com.example.careeix.utils.jwt.exception.NotFoundJwtException;
 import com.example.careeix.utils.jwt.service.JwtService;
@@ -18,6 +19,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -51,11 +53,11 @@ public class UserController {
             @ApiResponse(code = 409, message = "해당 닉네임은 이미 존재하는 닉네임입니다.", response = UserNicknameDuplicateException.class)
     })
     @PostMapping("/check-nickname")
-    public ResponseEntity<MessageResponse> duplicateCheckUser(@Valid @RequestBody NicknameDuplicateRequest nicknameDuplicateRequest) {
+    public ApplicationResponse<MessageResponse> duplicateCheckUser(@Valid @RequestBody NicknameDuplicateRequest nicknameDuplicateRequest) {
 
         userService.userNicknameDuplicateCheck(nicknameDuplicateRequest.getUserNickname());
 
-        return ResponseEntity.ok(MessageResponse.builder()
+        return ApplicationResponse.ok(MessageResponse.builder()
                 .message("사용가능한 닉네임입니다.")
                 .build());
     }
@@ -66,15 +68,14 @@ public class UserController {
      * @param
      * @return
      */
-    @ApiOperation(value = "사용자 정보 조회 - jwt 0", notes = "사용자 정보를 조회합니다.")
-    @GetMapping("/profile")
+    @ApiOperation(value = "사용자 정보 조회", notes = "사용자 정보를 조회합니다.")
+    @GetMapping("/profile/{userId}")
     @ApiResponses(value = {
             @ApiResponse(code = 400 , message = "JWT 토큰이 비어있습니다.", response = NotFoundJwtException.class),
             @ApiResponse(code = 403 , message = "ACCESS-TOKEN이 만료되었습니다.", response = ExpireAccessException.class),
     })
-    public ResponseEntity<LoginResponse> getUserProfile() {
-        long userIdByJwt = jwtService.getUserId();
-        User user = userService.getUserByUserId(userIdByJwt);
+    public ApplicationResponse<LoginResponse> getUserProfile(@PathVariable long userId) {
+        User user = userService.getUserByUserId(userId);
         return getLoginResponseResponseEntity(user);
     }
 
@@ -93,13 +94,13 @@ public class UserController {
             @ApiResponse(code = 409, message = "해당 닉네임은 이미 존재하는 닉네임입니다.", response = UserNicknameDuplicateException.class),
     })
     @PostMapping("/update-profile")
-    public ResponseEntity<MessageResponse> updateUserProfile(@Valid @ModelAttribute UserProfileRequest userProfileRequest,
+    public ApplicationResponse<MessageResponse> updateUserProfile(@Valid @ModelAttribute UserProfileRequest userProfileRequest,
                                                     @RequestParam(required = false) MultipartFile file) {
 
         long userId = jwtService.getUserId();
         User user = userService.updateUserProfile(userId, userProfileRequest.getUserNickName(), file);
 
-        return ResponseEntity.ok(MessageResponse.builder()
+        return ApplicationResponse.ok(MessageResponse.builder()
                 .message("사용자 프로필이 수정되었습니다.")
                 .build());
     }
@@ -116,15 +117,29 @@ public class UserController {
             @ApiResponse(code = 403 , message = "ACCESS-TOKEN이 만료되었습니다.", response = ExpireAccessException.class)
     })
     @PostMapping("/update-info")
-    public ResponseEntity<MessageResponse> updateUserInfo(@Valid @ModelAttribute UserInfoRequest userInfoRequest) {
+    public ApplicationResponse<MessageResponse> updateUserInfo(@Valid @ModelAttribute UserInfoRequest userInfoRequest) {
 
         long userId = jwtService.getUserId();
         User user = userService.updateUserInfo(userId, userInfoRequest);
         userJobService.updateUserJob(user, userInfoRequest.getUserDetailJob());
 
-        return ResponseEntity.ok(MessageResponse.builder()
+        return ApplicationResponse.ok(MessageResponse.builder()
                 .message("사용자 정보가 수정되었습니다.")
                 .build());
+    }
+
+    /**
+     * 사용자 직무에 관련된 프로필 리스트
+     * @param userId
+     * @return ResponseEntity<String>
+     */
+    @ApiOperation(value = "사용자 추천 프로필", notes = "사용자의 직무에 관련된 프로필 리스트를 조회합니다.")
+    @GetMapping("/recommend/profile/{userId}")
+    public ApplicationResponse<List<ProfileRecommendResponse>> getRecommendProfile(@PathVariable long userId) {
+        User user = userService.getUserByUserId(userId);
+        List<ProfileRecommendResponse> profileRecommendResponses = userJobService.getProfile(user);
+
+        return ApplicationResponse.ok(profileRecommendResponses);
     }
 
 
@@ -136,11 +151,11 @@ public class UserController {
      */
     @ApiOperation(value = "사용자 로그아웃", notes = "사용자 로그아웃을 합니다.")
     @GetMapping("/logout")
-    public ResponseEntity<MessageResponse> logoutUser(HttpServletRequest request) {
+    public ApplicationResponse<MessageResponse> logoutUser(HttpServletRequest request) {
         HttpSession session = request.getSession();
         session.invalidate();
 
-        return ResponseEntity.ok(MessageResponse.builder()
+        return ApplicationResponse.ok(MessageResponse.builder()
                 .message("로그아웃에 성공했습니다.")
                 .build());
     }
@@ -155,11 +170,11 @@ public class UserController {
             @ApiResponse(code = 400 , message = "JWT 토큰이 비어있습니다.", response = NotFoundJwtException.class),
             @ApiResponse(code = 403 , message = "ACCESS-TOKEN이 만료되었습니다.", response = ExpireAccessException.class),
     })
-    public ResponseEntity<MessageResponse> withdrawUser() {
+    public ApplicationResponse<MessageResponse> withdrawUser() {
         long userId = jwtService.getUserId();
         userService.withdrawUser(userId);
 
-        return ResponseEntity.ok(MessageResponse.builder()
+        return ApplicationResponse.ok(MessageResponse.builder()
                 .message("회원 탈퇴가 완료되었습니다.")
                 .build());
     }
@@ -177,7 +192,7 @@ public class UserController {
      * @return ResponseEntity
     \     */
     @ApiOperation(value = "카카오 로그인", notes = "첫번째 호출")
-    @PostMapping("/check-login")
+    @PostMapping("/check-login/{accessToken}")
     @ApiResponses(value = {
             @ApiResponse(code = 400 , message = "카카오 로그인에 실패했습니다.", response = KakaoFailException.class),
             @ApiResponse(code = 401 , message = "카카오 인증에 실패했습니다.", response = KakaoUnAuthorizedFaildException.class),
@@ -185,11 +200,11 @@ public class UserController {
             @ApiResponse(code = 500 , message = "카카오 API URL이 잘못되었습니다.", response = KakaoUrlException.class),
             @ApiResponse(code = 500 , message = "카카오 API 응답을 읽는데 실패했습니다.", response = KakaoApiResponseException.class),
     })
-    public ResponseEntity<LoginResponse> checkKakaoUser(@PathVariable String accessToken) {
+    public ApplicationResponse<LoginResponse> checkKakaoUser(@PathVariable String accessToken) {
         User user = oAuth2UserServiceKakao.validateKakaoAccessToken(accessToken);
         // 회원가입 한 적 없는 경우 - 첫번째 호출
         if (user.getUserJob() == null) {
-            return ResponseEntity.ok(LoginResponse.builder()
+            return ApplicationResponse.ok(LoginResponse.builder()
                     .message("회원가입을 진행해주세요")
                     .build());
         }
@@ -212,7 +227,7 @@ public class UserController {
             @ApiResponse(code = 500 , message = "카카오 API URL이 잘못되었습니다.", response = KakaoUrlException.class),
             @ApiResponse(code = 500 , message = "카카오 API 응답을 읽는데 실패했습니다.", response = KakaoApiResponseException.class),
     })
-    public ResponseEntity<LoginResponse> loginKakaoUser(@Valid @RequestBody KakaoLoginRequest kakaoLoginRequest) {
+    public ApplicationResponse<LoginResponse> loginKakaoUser(@Valid @RequestBody KakaoLoginRequest kakaoLoginRequest) {
         User user = oAuth2UserServiceKakao.validateKakaoAccessToken(kakaoLoginRequest.getAccessToken());
 
         // 회원가입 한 적 없는 경우 - 데이터 저장
@@ -224,12 +239,14 @@ public class UserController {
         return getLoginResponseResponseEntity(finalUser);
     }
 
-    private ResponseEntity<LoginResponse> getLoginResponseResponseEntity(User user) {
+    private ApplicationResponse<LoginResponse> getLoginResponseResponseEntity(User user) {
         List<String> userJobList = userJobService.getUserJobName(user.getUserId());
         String jwt = jwtService.createJwt(user.getUserId());
-        return ResponseEntity.ok(LoginResponse.builder()
+        return ApplicationResponse.ok(LoginResponse.builder()
                 .userId(user.getUserId())
                 .userWork(user.getUserWork())
+                .userIntro(user.getIntoContent())
+                .userProfileImg(user.getUserProfileImg())
                 .userProfileColor(user.getUserProfileColor())
                 .userSocialProvider(user.getUserSocialProvider())
                 .userDetailJobs(userJobList)
@@ -240,6 +257,8 @@ public class UserController {
                 .message("로그인에 성공하였습니다.")
                 .build());
     }
+
+
 
 
 

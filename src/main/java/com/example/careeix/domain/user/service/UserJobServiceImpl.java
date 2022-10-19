@@ -2,6 +2,7 @@ package com.example.careeix.domain.user.service;
 
 import com.example.careeix.domain.job.entity.Job;
 import com.example.careeix.domain.job.repository.JobRepository;
+import com.example.careeix.domain.user.dto.ProfileRecommendResponse;
 import com.example.careeix.domain.user.entity.User;
 import com.example.careeix.domain.user.entity.UserJob;
 import com.example.careeix.domain.user.repository.UserJobRepository;
@@ -64,6 +65,14 @@ public class UserJobServiceImpl implements UserJobService{
         userJobRepository.deleteAll(userJobList);
 
         if (!userJobList.isEmpty()) this.createUserJob(jobNameList, user);
+    }
+
+    @Override
+    public List<ProfileRecommendResponse> getProfile(User user) {
+        List<String> userJobList = this.getUserJobName(user.getUserId());
+        ProfileRecommendResponse.from(user, userJobList);
+
+        return null;
     }
 
 
