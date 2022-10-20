@@ -93,8 +93,8 @@ public class UserServiceImpl implements UserService {
         User user = this.getUserByUserId(userId);
         user.setUserJob(userInfoRequest.getUserJob());
         user.setUserWork(userInfoRequest.getUserWork());
-        user.setIntoContent(user.getIntoContent());
-        return user;
+        user.setIntoContent(userInfoRequest.getIntoContent());
+        return userRepository.save(user);
 
     }
 
