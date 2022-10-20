@@ -1,8 +1,6 @@
 package com.example.careeix.domain.user.service;
 
 
-import com.example.careeix.domain.myfile.entity.MyFile;
-import com.example.careeix.domain.myfile.service.MyFileService;
 import com.example.careeix.domain.user.constant.UserConstants;
 import com.example.careeix.domain.user.dto.KakaoLoginRequest;
 import com.example.careeix.domain.user.dto.UserInfoRequest;
@@ -10,6 +8,7 @@ import com.example.careeix.domain.user.entity.User;
 import com.example.careeix.domain.user.exception.NotFoundUserException;
 import com.example.careeix.domain.user.exception.UserNicknameDuplicateException;
 import com.example.careeix.domain.user.repository.UserRepository;
+import com.example.careeix.utils.file.service.AwsS3Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,7 +22,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
 
-    private final MyFileService myFileService;
+    private final AwsS3Service awsS3Service;
 
 
     /**
@@ -57,11 +56,12 @@ public class UserServiceImpl implements UserService {
         user.setUserNickName(nickName);
 
         if (file != null) {
-            MyFile profileImg = myFileService.saveImage(file);
-            user.setUserProfileImg(profileImg.getFileKey());
+            String filename = awsS3Service.uploadImage(file);
+            user.setUserProfileImg(awsS3Service.makeUrlOfFilename(filename));
+
         }
 
-        return user;
+        return userRepository.save(user);
     }
 
 
