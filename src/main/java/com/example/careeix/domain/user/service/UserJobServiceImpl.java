@@ -69,8 +69,26 @@ public class UserJobServiceImpl implements UserJobService{
     public void updateUserJob(User user, List<String> jobNameList) {
         List<UserJob> userJobList = userJobRepository.findByUser_UserId(user.getUserId());
         userJobRepository.deleteAll(userJobList);
+                for (String jobName : jobNameList) {
 
-        if (!userJobList.isEmpty()) this.createUserJob(jobNameList, user);
+        Job job = jobRepository.findByJobName(jobName).orElse(jobRepository.save(Job.builder()
+                            .jobName(jobName)
+                                    .build()));
+                    userJobRepository.save(UserJob.toEntityOfUserJob(user, job));
+
+                }
+
+//        for (String jobName : jobNameList) {
+//            Job job = jobRepository.findByJobName(jobName)
+//                    .orElse(jobRepository.save(Job.builder()
+//                            .jobName(jobName)
+//                                    .build()));
+//
+
+
+
+
+
     }
 
     @Override
