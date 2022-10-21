@@ -1,5 +1,6 @@
 package com.example.careeix.domain.project.service;
 
+import com.example.careeix.domain.project.dto.PostProjectDetail;
 import com.example.careeix.domain.project.entity.Project;
 import com.example.careeix.domain.project.entity.ProjectDetail;
 import com.example.careeix.domain.project.entity.ProjectNote;
@@ -8,6 +9,8 @@ import com.example.careeix.domain.project.repository.ProjectNoteRepository;
 import com.example.careeix.domain.project.repository.ProjectRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -25,9 +28,13 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public ProjectDetail createProjectDetail(ProjectDetail projectDetail) {
-        ProjectDetail projectDetailCreated = projectDetailRepository.save(projectDetail);
-        return projectDetailCreated;
+    public void createProjectDetail(List<PostProjectDetail> projectDetails, Project project) {
+        for (PostProjectDetail pd : projectDetails) {
+            ProjectDetail projectDetail = projectDetailRepository.save();
+
+        }
+//        ProjectDetail projectDetailCreated = projectDetailRepository.save(projectDetail);
+//        return projectDetailCreated;
     }
 
     @Override

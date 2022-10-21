@@ -25,7 +25,7 @@ public class ProjectDetail extends BaseEntity {
     @JoinColumn(name = "project_id")
     private Project project;
 
-    private String project_name;
+    private String project_detail_title;
     private String content;
 
 

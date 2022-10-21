@@ -12,7 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @ApiModel(description = "로그인 응답 객체")
-public class ProjectCreateResponse {
+public class PostProjectResponse {
 
     private String message;
 
@@ -25,8 +25,8 @@ public class ProjectCreateResponse {
     private String introduction;
     private List<ProjectDetailNote> projectDetailNotes;
 
-    public static ProjectCreateResponse from(Project project) {
-        return ProjectCreateResponse.builder()
+    public static PostProjectResponse from(Project project) {
+        return PostProjectResponse.builder()
                 .build();
     }
 

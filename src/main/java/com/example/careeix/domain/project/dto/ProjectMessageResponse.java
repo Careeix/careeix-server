@@ -14,8 +14,8 @@ import lombok.NoArgsConstructor;
 public class ProjectMessageResponse {
     private String message;
 
-    public static ProjectCreateResponse from(String message) {
-        return ProjectCreateResponse.builder()
+    public static PostProjectResponse from(String message) {
+        return PostProjectResponse.builder()
                 .message(message)
                 .build();
     }
