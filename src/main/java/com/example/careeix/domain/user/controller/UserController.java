@@ -200,9 +200,9 @@ public class UserController {
     })
     public ApplicationResponse<LoginResponse> checkKakaoUser(@Valid @RequestBody KakaoAccessRequest kakaoAccessRequest) {
         User user = oAuth2UserServiceKakao.validateKakaoAccessToken(kakaoAccessRequest.getAccessToken());
-        if(user.getSocialId() == null){
-            throw new KakaoFailException();
-        }
+//        if(user.getSocialId() == null){
+//            throw new KakaoFailException();
+//        }
         // 회원가입 한 적 없는 경우 - 첫번째 호출
         if (user.getUserJob() == null) {
             return ApplicationResponse.ok(LoginResponse.builder()
