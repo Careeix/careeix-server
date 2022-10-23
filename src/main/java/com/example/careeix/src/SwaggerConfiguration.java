@@ -33,6 +33,7 @@ public class SwaggerConfiguration {
                 .modelRef(new ModelRef("string")).build());
 
         return new Docket(DocumentationType.SWAGGER_2)
+                .host("prod.y30n500.shop")
                 .globalOperationParameters(global)
                 .apiInfo(this.apiInfo())
                 .useDefaultResponseMessages(false)
