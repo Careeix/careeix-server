@@ -194,7 +194,7 @@ public class UserController {
      * @return ResponseEntity
     \     */
     @ApiOperation(value = "카카오 로그인", notes = "첫번째 호출 - userId 0이나 jwt null이면 추가정보 받고 kakao-login api로")
-    @PostMapping("/check-login/{accessToken}")
+    @PostMapping("/check-login")
     @ApiResponses(value = {
             @ApiResponse(code = 400 , message = "카카오 로그인에 실패했습니다."),
     })
