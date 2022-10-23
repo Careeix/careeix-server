@@ -234,6 +234,10 @@ public class UserController {
     })
     public ApplicationResponse<LoginResponse> loginKakaoUser(@Valid @RequestBody KakaoLoginRequest kakaoLoginRequest) {
         User user = oAuth2UserServiceKakao.validateKakaoAccessToken(kakaoLoginRequest.getAccessToken());
+        if(user.getSocialId() == null){
+            throw new RuntimeException("카카오 엑세스 토큰이 잘못되었습니다.");
+        }
+
         if(!Objects.equals(user.getUserNickName(), kakaoLoginRequest.getNickname())){
             userService.userNicknameDuplicateCheck(kakaoLoginRequest.getNickname());
 
