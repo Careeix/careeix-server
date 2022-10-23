@@ -68,9 +68,9 @@ public class UserJobServiceImpl implements UserJobService{
     @Override
     public void updateUserJob(User user, List<String> jobNameList) {
         List<UserJob> userJobList = userJobRepository.findByUser_UserId(user.getUserId());
-        for(int i=0; i<userJobList.size(); i++){
-            jobRepository.delete(jobRepository.getOne(userJobList.get(i).getJob().getJobId()));
-        }
+//        for(int i=0; i<userJobList.size(); i++){
+//            jobRepository.delete(jobRepository.getOne(userJobList.get(i).getJob().getJobId()));
+//        }
 
         userJobRepository.deleteAll(userJobList);
         jobRepository.deleteAll();
