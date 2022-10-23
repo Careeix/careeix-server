@@ -23,7 +23,7 @@ public class PostProjectDetail {
 
     public ProjectDetail toEntity() {
         return ProjectDetail.builder()
-                .project_detail_title(project_detail_title)
+                .projectDetailTitle(project_detail_title)
                 .content(content)
                 .build();
     }

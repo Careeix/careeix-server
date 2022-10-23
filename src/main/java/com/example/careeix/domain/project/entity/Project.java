@@ -1,6 +1,7 @@
 package com.example.careeix.domain.project.entity;
 
 import com.example.careeix.config.BaseEntity;
+import com.example.careeix.domain.user.entity.User;
 import lombok.*;
 
 import javax.persistence.*;
@@ -16,16 +17,16 @@ import java.util.List;
 public class Project extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long project_id;
+    private Long projectId;
 
-    //@ManyToOne(fetch = FetchType.LAZY)
-    //@JoinColumn(name = "user_career_id")
-    private Long user_career_id;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 
     private String title;
-    private String start_date;
-    private String end_date;
-    private int is_proceed;
+    private String startDate;
+    private String endDate;
+    private int isProceed;
     private String classification;
     private String introduction;
 

@@ -1,6 +1,7 @@
 package com.example.careeix.domain.project.dto;
 
 import com.example.careeix.domain.project.entity.Project;
+import com.example.careeix.domain.user.entity.User;
 import io.swagger.annotations.ApiModel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -25,12 +26,13 @@ public class PostProjectRequest {
     private List<PostProjectDetail> projectDetail;
 
 
-    public Project toEntity() {
+    public Project toEntity(User userId) {
         return Project.builder()
+                .user(userId)
                 .title(title)
-                .start_date(start_date)
-                .end_date(end_date)
-                .is_proceed(is_proceed)
+                .startDate(start_date)
+                .endDate(end_date)
+                .isProceed(is_proceed)
                 .classification(classification)
                 .introduction(introduction)
                 .build();

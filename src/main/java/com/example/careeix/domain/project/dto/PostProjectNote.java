@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @ApiModel(description = "프로젝트 등록의 노트를 위한 객체")
 public class PostProjectNote {
+
     private String content;
 
     public ProjectNote toEntity() {
