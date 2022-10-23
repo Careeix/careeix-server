@@ -191,20 +191,18 @@ public class UserController {
     /**
      * 카카오 로그인 API
      * [POST] api/v1/users/check-login
-     * @param accessToken
      * @return ResponseEntity
     \     */
     @ApiOperation(value = "카카오 로그인", notes = "첫번째 호출 - userId 0이나 jwt null이면 추가정보 받고 kakao-login api로")
     @PostMapping("/check-login/{accessToken}")
     @ApiResponses(value = {
-            @ApiResponse(code = 400 , message = "카카오 로그인에 실패했습니다.", response = KakaoFailException.class),
-            @ApiResponse(code = 401 , message = "카카오 인증에 실패했습니다.", response = KakaoUnAuthorizedFaildException.class),
-            @ApiResponse(code = 405 , message = "카카오의 지정된 요청 방식 이외의 프로토콜을 전달했습니다.", response = KakaoProtocolException.class),
-            @ApiResponse(code = 500 , message = "카카오 API URL이 잘못되었습니다.", response = KakaoUrlException.class),
-            @ApiResponse(code = 500 , message = "카카오 API 응답을 읽는데 실패했습니다.", response = KakaoApiResponseException.class),
+            @ApiResponse(code = 400 , message = "카카오 로그인에 실패했습니다."),
     })
-    public ApplicationResponse<LoginResponse> checkKakaoUser(@PathVariable String accessToken) {
-        User user = oAuth2UserServiceKakao.validateKakaoAccessToken(accessToken);
+    public ApplicationResponse<LoginResponse> checkKakaoUser(@Valid @RequestBody KakaoAccessRequest kakaoAccessRequest) {
+        User user = oAuth2UserServiceKakao.validateKakaoAccessToken(kakaoAccessRequest.getAccessToken());
+        if(user.getSocialId() == null){
+            throw new KakaoFailException();
+        }
         // 회원가입 한 적 없는 경우 - 첫번째 호출
         if (user.getUserJob() == null) {
             return ApplicationResponse.ok(LoginResponse.builder()
@@ -235,7 +233,7 @@ public class UserController {
     public ApplicationResponse<LoginResponse> loginKakaoUser(@Valid @RequestBody KakaoLoginRequest kakaoLoginRequest) {
         User user = oAuth2UserServiceKakao.validateKakaoAccessToken(kakaoLoginRequest.getAccessToken());
         if(user.getSocialId() == null){
-            throw new RuntimeException("카카오 엑세스 토큰이 잘못되었습니다.");
+            throw new KakaoFailException();
         }
 
         if(!Objects.equals(user.getUserNickName(), kakaoLoginRequest.getNickname())){
