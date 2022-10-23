@@ -2,6 +2,7 @@ package com.example.careeix.domain.user.controller;
 
 
 import com.example.careeix.config.BaseException;
+import com.example.careeix.domain.color.service.ColorService;
 import com.example.careeix.domain.user.dto.*;
 import com.example.careeix.domain.user.entity.User;
 import com.example.careeix.domain.user.exception.UserNicknameDuplicateException;
@@ -38,6 +39,8 @@ import java.util.Objects;
 public class UserController {
 
     private final UserService userService;
+
+    private final ColorService colorService;
     private final UserJobService userJobService;
     private final JwtService jwtService;
     private final OAuth2UserServiceKakao oAuth2UserServiceKakao;
@@ -222,13 +225,13 @@ public class UserController {
     @ApiOperation(value = "카카오 로그인", notes = "회원가입 후 로그인 - 추가 정보 받고 호출하는 api, 연차 0,1,2,3 으로 전달해주세요")
     @PostMapping("/kakao-login")
     @ApiResponses(value = {
-            @ApiResponse(code = 400 , message = "카카오 로그인에 실패했습니다.", response = KakaoFailException.class),
+            @ApiResponse(code = 400 , message = "카카오 로그인에 실패했습니다."),
             @ApiResponse(code = 400 , message = "회원의 닉네임을 입력해주세요. \t\n 닉네임은 2~10글자의 영소문자, 숫자, 한글만 가능합니다."),
-            @ApiResponse(code = 401 , message = "카카오 인증에 실패했습니다.", response = KakaoUnAuthorizedFaildException.class),
-            @ApiResponse(code = 405 , message = "카카오의 지정된 요청 방식 이외의 프로토콜을 전달했습니다.", response = KakaoProtocolException.class),
-            @ApiResponse(code = 409, message = "해당 닉네임은 이미 존재하는 닉네임입니다.", response = UserNicknameDuplicateException.class),
-            @ApiResponse(code = 500 , message = "카카오 API URL이 잘못되었습니다.", response = KakaoUrlException.class),
-            @ApiResponse(code = 500 , message = "카카오 API 응답을 읽는데 실패했습니다.", response = KakaoApiResponseException.class),
+            @ApiResponse(code = 401 , message = "카카오 인증에 실패했습니다."),
+            @ApiResponse(code = 405 , message = "카카오의 지정된 요청 방식 이외의 프로토콜을 전달했습니다."),
+            @ApiResponse(code = 409, message = "해당 닉네임은 이미 존재하는 닉네임입니다."),
+            @ApiResponse(code = 500 , message = "카카오 API URL이 잘못되었습니다."),
+            @ApiResponse(code = 500 , message = "카카오 API 응답을 읽는데 실패했습니다."),
     })
     public ApplicationResponse<LoginResponse> loginKakaoUser(@Valid @RequestBody KakaoLoginRequest kakaoLoginRequest) {
         User user = oAuth2UserServiceKakao.validateKakaoAccessToken(kakaoLoginRequest.getAccessToken());
@@ -245,7 +248,8 @@ public class UserController {
         try {
             User finalUser = userService.insertUser(kakaoLoginRequest, user);
             userJobService.createUserJob(kakaoLoginRequest.getUserDetailJob(), finalUser);
-            return getLoginResponseResponseEntity(finalUser);
+            User u = colorService.getColorName(finalUser);
+            return getLoginResponseResponseEntity(u);
 
         } catch (Exception e) {
             throw new RuntimeException(e);
