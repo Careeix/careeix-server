@@ -14,6 +14,7 @@ import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 
@@ -119,11 +120,10 @@ public class UserJobServiceImpl implements UserJobService{
                 if(profileRecommendResponses.size()>6){
                     break;
                 }
-                if (u==user){
-                    break;
+                if (!Objects.equals(u.getUserId(), user.getUserId())){
+                    List<String> findUserJobList = this.getUserJobName(u.getUserId());
+                    profileRecommendResponses.add(ProfileRecommendResponse.from(u, findUserJobList));
                 }
-                List<String> findUserJobList = this.getUserJobName(u.getUserId());
-                profileRecommendResponses.add(ProfileRecommendResponse.from(u, findUserJobList));
             }
         }
         if (profileRecommendResponses.isEmpty()){
