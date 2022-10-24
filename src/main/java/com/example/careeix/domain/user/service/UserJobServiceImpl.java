@@ -83,7 +83,7 @@ public class UserJobServiceImpl implements UserJobService{
 
         Job job = jobRepository.save(Job.builder()
                             .jobName(jobName)
-                                    .build()));
+                                    .build());
                     userJobRepository.save(UserJob.toEntityOfUserJob(user, job));
 
                 }
