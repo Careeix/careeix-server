@@ -91,13 +91,13 @@ public class UserController {
      * @param userProfileRequest, file
      * @return ResponseEntity<String>
      */
-    @ApiOperation(value = "사용자 프로필 수정  - jwt 0", notes = "사용자 프로필을 수정합니다. multipart 형식을 이용해서 주셔야 됩니다. " +
+    @ApiOperation(value = "사용자 프로필 수정  - jwt 0", notes = "사용자 프로필을 수정합니다. 이미지는 multipart 형식을 이용해서 주셔야 됩니다. " +
             "null로 보내도 허용하게 했습니다. s3서버를 이용하여 저장하고 불러오고 있습니다. 저장정보 주소를 풀로 저장하고 있기때문에 불러오고 저장할때 추가로 작업하실건 없습니다.", produces = "multipart/form-data")
     @ApiResponses(value = {
             @ApiResponse(code = 400 , message = "회원의 닉네임을 입력해주세요. \t\n 닉네임은 2~10글자의 영소문자, 숫자, 한글만 가능합니다."),
-            @ApiResponse(code = 400 , message = "JWT 토큰이 비어있습니다.", response = NotFoundJwtException.class),
-            @ApiResponse(code = 403 , message = "ACCESS-TOKEN이 만료되었습니다.", response = ExpireAccessException.class),
-            @ApiResponse(code = 409, message = "해당 닉네임은 이미 존재하는 닉네임입니다.", response = UserNicknameDuplicateException.class),
+            @ApiResponse(code = 400 , message = "JWT 토큰이 비어있습니다."),
+            @ApiResponse(code = 403 , message = "ACCESS-TOKEN이 만료되었습니다."),
+            @ApiResponse(code = 409, message = "해당 닉네임은 이미 존재하는 닉네임입니다."),
     })
     @PostMapping("/update-profile")
     public ApplicationResponse<MessageResponse> updateUserProfile(@Valid @ModelAttribute UserProfileRequest userProfileRequest,
@@ -179,8 +179,8 @@ public class UserController {
     @ApiOperation(value = "회원 탈퇴 - jwt 0", notes = "회원 탈퇴를 합니다. 회원 탈퇴시 기본 status 1을 0으로 바꿉니다.")
     @PostMapping("/withdraw")
     @ApiResponses(value = {
-            @ApiResponse(code = 400 , message = "JWT 토큰이 비어있습니다.", response = NotFoundJwtException.class),
-            @ApiResponse(code = 403 , message = "ACCESS-TOKEN이 만료되었습니다.", response = ExpireAccessException.class),
+            @ApiResponse(code = 400 , message = "JWT 토큰이 비어있습니다."),
+            @ApiResponse(code = 403 , message = "ACCESS-TOKEN이 만료되었습니다."),
     })
     public ApplicationResponse<MessageResponse> withdrawUser() {
         long userId = jwtService.getUserId();
