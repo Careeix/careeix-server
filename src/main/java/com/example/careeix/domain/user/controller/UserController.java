@@ -36,7 +36,7 @@ import java.util.Objects;
 @RestController
 @RequestMapping("api/v1/users")
 @RequiredArgsConstructor
-@Api(tags = "User API - 담당자 혜도")
+@Api(tags = "User API - 혜도")
 public class UserController {
 
     private final UserService userService;
@@ -74,7 +74,7 @@ public class UserController {
      * @return
      */
     @ApiOperation(value = "사용자 정보 조회", notes = "사용자 정보를 조회합니다. 사용자의 모든 정보를 포함했습니다. 마이페이지나 다른 유저 정보를 조회할때" +
-            "쓰시면 됩니다.")
+            "쓰시면 됩니다. userWork, userSocial(0: 카카오, 1: 구글) : int, userId : long")
     @GetMapping("/profile/{userId}")
     @ApiResponses(value = {
             @ApiResponse(code = 400 , message = "해당 아이디를 찾을 수 없습니다.")
@@ -203,7 +203,7 @@ public class UserController {
      * @return ResponseEntity
     \     */
     @ApiOperation(value = "카카오 로그인 - 첫번째 호출", notes = "userId 0이나 jwt null이면 추가정보 받는 kakao-login api 이용," +
-            "카카오 엑세스 토큰을 통해 검증 작업후 상황별 아래 에러코드들 반환합니다.")
+            "카카오 엑세스 토큰을 통해 검증 작업후 상황별 아래 에러코드들 반환합니다. int userWork, userSocial(0: 카카오, 1: 구글), long userId")
     @PostMapping("/check-login")
     @ApiResponses(value = {
             @ApiResponse(code = 400 , message = "카카오 로그인에 실패했습니다."),
@@ -235,7 +235,8 @@ public class UserController {
      * @return ResponseEntity
 \     */
     @ApiOperation(value = "카카오 로그인 - 추가정보 입력 후 호출", notes = "회원가입 후 로그인 - 추가 정보 받고 호출하는 api, 연차 0,1,2,3 으로 전달해주세요" +
-            "위와 같은 카카오 api를 이용하고 있는데 위에서 검증을 하고 넘기기 때문에 그부분에 대한 에러코드는 생략했습니다.")
+            "위와 같은 카카오 api를 이용하고 있는데 위에서 검증을 하고 넘기기 때문에 그부분에 대한 에러코드는 생략했습니다." +
+            "userWork, userSocial(0: 카카오, 1: 구글) : int, userId : long")
     @PostMapping("/kakao-login")
     @ApiResponses(value = {
             @ApiResponse(code = 400 , message = "회원의 닉네임을 입력해주세요. \t\n 닉네임은 2~10글자의 영소문자, 숫자, 한글만 가능합니다."),
