@@ -119,6 +119,9 @@ public class UserJobServiceImpl implements UserJobService{
                 if(profileRecommendResponses.size()>6){
                     break;
                 }
+                if (u==user){
+                    break;
+                }
                 List<String> findUserJobList = this.getUserJobName(u.getUserId());
                 profileRecommendResponses.add(ProfileRecommendResponse.from(u, findUserJobList));
             }
