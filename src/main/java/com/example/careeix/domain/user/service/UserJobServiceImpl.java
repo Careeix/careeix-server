@@ -14,6 +14,7 @@ import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -102,9 +103,31 @@ public class UserJobServiceImpl implements UserJobService{
     @Override
     public List<ProfileRecommendResponse> getProfile(User user) {
         List<String> userJobList = this.getUserJobName(user.getUserId());
-        ProfileRecommendResponse.from(user, userJobList);
+        userJobList.add(0, user.getUserJob());
+        List<String> distinctUserJobList = userJobList.stream().distinct().collect(Collectors.toList());
+        List<ProfileRecommendResponse> profileRecommendResponses = new ArrayList<>();
 
-        return null;
+        for(String job: distinctUserJobList){
+            if(profileRecommendResponses.size()>6){
+                break;
+            }
+            List<User> findUser = userRepository.findByUserJob(job);
+            if(findUser.isEmpty()){
+                break;
+            }
+            for(User u : findUser){
+                if(profileRecommendResponses.size()>6){
+                    break;
+                }
+                List<String> findUserJobList = this.getUserJobName(u.getUserId());
+                profileRecommendResponses.add(ProfileRecommendResponse.from(u, findUserJobList));
+            }
+        }
+        if (profileRecommendResponses.isEmpty()){
+            return null;
+        }
+
+        return profileRecommendResponses;
     }
 
 
