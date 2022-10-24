@@ -47,10 +47,13 @@ public class UserJobServiceImpl implements UserJobService{
     public void createUserJob(List<String> jobNameList, User user) {
         try {
             for (String jobName : jobNameList) {
-                Job job = jobRepository.findByJobName(jobName)
-                        .orElse(jobRepository.save(Job.builder()
+//                Job job = jobRepository.findByJobName(jobName)
+//                        .orElse(jobRepository.save(Job.builder()
+//                                .jobName(jobName)
+//                                .build()));
+                Job job = jobRepository.save(Job.builder()
                                 .jobName(jobName)
-                                .build()));
+                                .build());
 
                 UserJob userJob = new UserJob();
                 userJob.setUser(user);

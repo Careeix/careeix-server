@@ -137,7 +137,7 @@ public class UserController {
      * 사용자 직무에 관련된 프로필 리스트
      * @return ResponseEntity<String>
      */
-    @ApiOperation(value = "사용자 추천 프로필", notes = "사용자의 직무에 관련된 프로필 리스트를 조회합니다.")
+    @ApiOperation(value = "사용자 추천 프로필 - jwt 0, 개발중", notes = "사용자의 직무에 관련된 프로필 리스트를 조회합니다.")
     @GetMapping("/recommend/profile")
     public ApplicationResponse<List<ProfileRecommendResponse>> getRecommendProfile() {
         long userId = jwtService.getUserId();
