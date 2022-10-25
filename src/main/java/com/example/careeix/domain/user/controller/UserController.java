@@ -77,7 +77,7 @@ public class UserController {
      * @return
      */
     @ApiOperation(value = "사용자 정보 조회", notes = "사용자 정보를 조회합니다. 사용자의 모든 정보를 포함했습니다. \t\n 마이페이지나 다른 유저 정보를 조회할때" +
-            "쓰시면 됩니다. \t\n userWork, userSocial(0: 카카오, 1: 구글) : int, userId : long")
+            "쓰시면 됩니다. \t\n userWork, userSocial(0: 카카오, 1: 구글) : int, userId : long", response = ApiErrorResponse.class)
     @GetMapping("/profile/{userId}")
     @ApiResponses(value = {
             @ApiResponse(code = 400 , message = "해당 아이디를 찾을 수 없습니다.")
@@ -100,7 +100,7 @@ public class UserController {
             @ApiResponse(code = 400 , message = "회원의 닉네임을 입력해주세요. \t\n 닉네임은 2~10글자의 영소문자, 숫자, 한글만 가능합니다."),
             @ApiResponse(code = 400 , message = "JWT 토큰이 비어있습니다."),
             @ApiResponse(code = 403 , message = "ACCESS-TOKEN이 만료되었습니다."),
-            @ApiResponse(code = 409, message = "해당 닉네임은 이미 존재하는 닉네임입니다."),
+            @ApiResponse(code = 409, message = "해당 닉네임은 이미 존재하는 닉네임입니다.", response = ApiErrorResponse.class),
     })
     @PostMapping("/update-profile")
     public ApplicationResponse<MessageResponse> updateUserProfile(@Valid @ModelAttribute UserProfileRequest userProfileRequest,
@@ -125,7 +125,7 @@ public class UserController {
             "사용자의 reqeust정보들을 고칩니다. \t\n 닉네임, 사진 고치는 건 프로필 수정 api입니다.")
     @ApiResponses(value = {
             @ApiResponse(code = 400 , message = "JWT 토큰이 비어있습니다."),
-            @ApiResponse(code = 403 , message = "ACCESS-TOKEN이 만료되었습니다.")
+            @ApiResponse(code = 403 , message = "ACCESS-TOKEN이 만료되었습니다.", response = ApiErrorResponse.class)
     })
     @PostMapping("/update-info")
     public ApplicationResponse<MessageResponse> updateUserInfo(@Valid @ModelAttribute UserInfoRequest userInfoRequest) {
@@ -145,7 +145,7 @@ public class UserController {
      */
     @ApiOperation(value = "사용자 추천 프로필 - jwt 0", notes = "사용자의 직무에 관련된 프로필 리스트를 조회합니다." +
             "\t\n 사용자의 직무랑 사용자의 세부 직무를 다른 사람들 직무랑 비교해서 찾아서 주고 있습니다. 6개 limit을 걸어두었고 리스트엔 userId를 반환하니까" +
-            "\t\n 클릭하게 되면 이 userID를 이용하셔서 상세 조회하시면 됩니다. 그땐 유저 상세 조회 api를 이용해주세요. 데이터가 없으면 null 리턴하고 있습니다.")
+            "\t\n 클릭하게 되면 이 userID를 이용하셔서 상세 조회하시면 됩니다. 그땐 유저 상세 조회 api를 이용해주세요. 데이터가 없으면 null 리턴하고 있습니다.", response = ApiErrorResponse.class)
     @GetMapping("/recommend/profile")
     public ApplicationResponse<List<ProfileRecommendResponse>> getRecommendProfile() {
         long userId = jwtService.getUserId();
@@ -163,7 +163,7 @@ public class UserController {
      * @return ResponseEntity<MessageResponse>
      */
     @ApiOperation(value = "사용자 로그아웃 - note 참조", notes = "클라이언트에서 일했을 때 클라에서 이런걸 다했었는데 혹시 필요하시면 쓰시라고 해뒀습니다." +
-            "굳이 안쓰셔도 되면 냅두시면 됩니다.")
+            "굳이 안쓰셔도 되면 냅두시면 됩니다.", response = ApiErrorResponse.class)
     @GetMapping("/logout")
     public ApplicationResponse<MessageResponse> logoutUser(HttpServletRequest request) {
         HttpSession session = request.getSession();
@@ -183,7 +183,7 @@ public class UserController {
     @PostMapping("/withdraw")
     @ApiResponses(value = {
             @ApiResponse(code = 400 , message = "JWT 토큰이 비어있습니다."),
-            @ApiResponse(code = 403 , message = "ACCESS-TOKEN이 만료되었습니다."),
+            @ApiResponse(code = 403 , message = "ACCESS-TOKEN이 만료되었습니다.", response = ApiErrorResponse.class),
     })
     public ApplicationResponse<MessageResponse> withdrawUser() {
         long userId = jwtService.getUserId();
@@ -214,7 +214,7 @@ public class UserController {
             @ApiResponse(code = 405 , message = "카카오의 지정된 요청 방식 이외의 프로토콜을 전달했습니다."),
             @ApiResponse(code = 409, message = "해당 닉네임은 이미 존재하는 닉네임입니다."),
             @ApiResponse(code = 500 , message = "카카오 API URL이 잘못되었습니다."),
-            @ApiResponse(code = 500 , message = "카카오 API 응답을 읽는데 실패했습니다."),
+            @ApiResponse(code = 500 , message = "카카오 API 응답을 읽는데 실패했습니다.", response = ApiErrorResponse.class),
     })
     public ApplicationResponse<LoginResponse> checkKakaoUser(@Valid @RequestBody KakaoAccessRequest kakaoAccessRequest) {
         User user = oAuth2UserServiceKakao.validateKakaoAccessToken(kakaoAccessRequest.getAccessToken());
