@@ -6,12 +6,14 @@ import com.example.careeix.domain.color.service.ColorService;
 import com.example.careeix.domain.user.dto.*;
 import com.example.careeix.domain.user.entity.User;
 import com.example.careeix.domain.user.exception.NotFoundUserException;
+import com.example.careeix.domain.user.exception.UserException;
 import com.example.careeix.domain.user.exception.UserNicknameDuplicateException;
 import com.example.careeix.domain.user.exception.oauth2.kakao.*;
 import com.example.careeix.domain.user.service.OAuth2UserServiceKakao;
 import com.example.careeix.domain.user.service.UserJobService;
 import com.example.careeix.domain.user.service.UserService;
 import com.example.careeix.utils.dto.ApplicationResponse;
+import com.example.careeix.utils.exception.ApplicationException;
 import com.example.careeix.utils.jwt.exception.ExpireAccessException;
 import com.example.careeix.utils.jwt.exception.NotFoundJwtException;
 import com.example.careeix.utils.jwt.service.JwtService;
@@ -240,7 +242,7 @@ public class UserController {
     @PostMapping("/kakao-login")
     @ApiResponses(value = {
             @ApiResponse(code = 400 , message = "회원의 닉네임을 입력해주세요. \t\n 닉네임은 2~10글자의 영소문자, 숫자, 한글만 가능합니다."),
-            @ApiResponse(code = 409, message = "해당 닉네임은 이미 존재하는 닉네임입니다.")
+            @ApiResponse(code = 409, message = "해당 닉네임은 이미 존재하는 닉네임입니다.", response = ApplicationException.class)
     })
     public ApplicationResponse<LoginResponse> loginKakaoUser(@Valid @RequestBody KakaoLoginRequest kakaoLoginRequest) {
         User user = oAuth2UserServiceKakao.validateKakaoAccessToken(kakaoLoginRequest.getAccessToken());
