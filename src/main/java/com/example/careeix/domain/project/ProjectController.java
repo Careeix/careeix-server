@@ -2,6 +2,7 @@ package com.example.careeix.domain.project;
 
 import com.example.careeix.config.BaseException;
 import com.example.careeix.config.BaseResponse;
+import com.example.careeix.config.BaseResponseStatus;
 import com.example.careeix.domain.project.dto.*;
 import com.example.careeix.domain.project.entity.Project;
 import com.example.careeix.domain.project.entity.ProjectDetail;
@@ -9,6 +10,9 @@ import com.example.careeix.domain.project.service.ProjectService;
 import com.example.careeix.utils.dto.ApplicationResponse;
 import com.example.careeix.utils.jwt.service.JwtService;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,6 +41,7 @@ public class ProjectController {
      *
      * @return BaseResponse<PostProjectResponse>
      */
+    @ApiOperation(value = "프로젝트 등록")
     @ResponseBody
     @PostMapping("")
     public BaseResponse<PostProjectResponse> createProject(@RequestBody @Valid PostProjectRequest postProjectRequest){

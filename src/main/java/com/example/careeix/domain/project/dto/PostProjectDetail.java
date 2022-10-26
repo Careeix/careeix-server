@@ -13,7 +13,7 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-@ApiModel(description = "프로젝트 등록의 내용을 위한 객체")
+@ApiModel(description = "프로젝트 등록 - 내용 객체")
 public class PostProjectDetail {
 
     //ProjectDeatil

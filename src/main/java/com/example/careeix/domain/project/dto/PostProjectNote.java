@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-@ApiModel(description = "프로젝트 등록의 노트를 위한 객체")
+@ApiModel(description = "프로젝트 등록 - 노트 객체")
 public class PostProjectNote {
 
     private String content;

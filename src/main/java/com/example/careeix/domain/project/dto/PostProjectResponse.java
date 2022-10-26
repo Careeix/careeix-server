@@ -11,7 +11,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@ApiModel(description = "로그인 응답 객체")
+@ApiModel(description = "프로젝트 등록 응답 객체")
 public class PostProjectResponse {
 
     private long project_id;

@@ -10,7 +10,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@ApiModel(description = "프로젝트 내용과 노트 객체")
+@ApiModel(description = "프로젝트 내용,노트 객체")
 public class ProjectDetailNote {
     private PostProjectDetail projectDetail;
     private List<String> projectNote;
