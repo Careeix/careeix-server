@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.Optional;
 
 @Getter
 @AllArgsConstructor
@@ -23,12 +24,12 @@ public class PostProjectRequest {
     private String classification;
     private String introduction;
     //projectDetail
-    private List<PostProjectDetail> projectDetail;
+    private List<PostProjectDetail> projectDetails;
 
 
-    public Project toEntity(User userId) {
+    public Project toEntity(User user) {
         return Project.builder()
-                .user(userId)
+                .user(user)
                 .title(title)
                 .startDate(start_date)
                 .endDate(end_date)

@@ -1,19 +1,29 @@
 package com.example.careeix.domain.project.service;
 
+import com.example.careeix.config.BaseException;
 import com.example.careeix.domain.project.dto.PostProjectDetail;
+import com.example.careeix.domain.project.dto.PostProjectNote;
 import com.example.careeix.domain.project.dto.PostProjectRequest;
 import com.example.careeix.domain.project.dto.PostProjectResponse;
 import com.example.careeix.domain.project.entity.Project;
+import com.example.careeix.domain.project.entity.ProjectDetail;
 import com.example.careeix.domain.project.entity.ProjectNote;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Optional;
 
 public interface ProjectService {
 
-    PostProjectResponse createProject(@Valid PostProjectRequest postProjectRequest, Long userId);
+    Project createProject(@Valid PostProjectRequest postProjectRequest, Long userId) throws BaseException;
 
-    void createProjectDetail(@Valid List<PostProjectDetail> projectDetail);
+    ProjectDetail createProjectDetail(@Valid PostProjectDetail projectDetail, Project project) throws BaseException;
 
-    ProjectNote createProjectNote(@Valid ProjectNote projectNote);
+//    void createProjectNotes(@Valid List<PostProjectNote> projectNotes, ProjectDetail projectDetail);
+
+    void createProjectNote(@Valid PostProjectNote projectNote, ProjectDetail projectDetail) throws BaseException;
+
+    Optional<Project> getProjectById(long projectId);
+    String getProjectDetail(long projectId);
+    List<String> getProjectNote(long projectId);
 }

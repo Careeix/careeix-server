@@ -30,7 +30,17 @@ public enum BaseResponseStatus {
     POST_USERS_INVALID_EMAIL(false, 2016, "이메일 형식을 확인해주세요."),
     POST_USERS_EXISTS_EMAIL(false,2017,"중복된 이메일입니다."),
 
-
+    // PROJECT
+    EMPTY_TITLE(false, 2020, "프로젝트 제목을 입력해주세요."),
+    EMPTY_START_DATE(false, 2021, "프로젝트 시작 날짜를 입력해주세요."),
+    EMPTY_END_DATE(false, 2022, "프로젝트 종료 날짜를 입력해주세요."),
+    DISORDERED_DATE(false, 2023, "프로젝트 시작-종료 날짜를 순서에 맞게 입력해주세요."),
+    EMPTY_CLASSIFICATION(false, 2024, "프로젝트 구분을 입력해주세요."),
+    EMPTY_INTRODUCTION(false, 2025, "프로젝트 소개를 입력해주세요."),
+    EMPTY_PDETAIL_TITLE(false, 2026, "프로젝트 내용 제목을 입력해주세요."),
+    EMPTY_PDETAIL_CONTENT(false, 2027, "프로젝트 내용 본문을 입력해주세요."),
+    EMPTY_PNOTE_CONTENT(false, 2028, "프로젝트 메모 본문을 입력해주세요."),
+    INVALID_ISPROCEED(false, 2029, "프로젝트 진행 여부 입력을 확인해주세요.(0 : 진행 종료, 1 : 진행 중)"),
 
     /**
      * 3000 : Response 오류

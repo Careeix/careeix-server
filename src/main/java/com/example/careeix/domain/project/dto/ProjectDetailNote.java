@@ -12,6 +12,6 @@ import java.util.List;
 @NoArgsConstructor
 @ApiModel(description = "프로젝트 내용과 노트 객체")
 public class ProjectDetailNote {
-    private String projectDetail;
+    private PostProjectDetail projectDetail;
     private List<String> projectNote;
 }

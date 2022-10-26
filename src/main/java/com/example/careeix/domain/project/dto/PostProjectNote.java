@@ -1,5 +1,6 @@
 package com.example.careeix.domain.project.dto;
 
+import com.example.careeix.domain.project.entity.ProjectDetail;
 import com.example.careeix.domain.project.entity.ProjectNote;
 import io.swagger.annotations.ApiModel;
 import lombok.AllArgsConstructor;
@@ -14,8 +15,9 @@ public class PostProjectNote {
 
     private String content;
 
-    public ProjectNote toEntity() {
+    public ProjectNote toEntity(ProjectDetail projectDetail) {
         return ProjectNote.builder()
+                .projectDetail(projectDetail)
                 .content(content)
                 .build();
     }

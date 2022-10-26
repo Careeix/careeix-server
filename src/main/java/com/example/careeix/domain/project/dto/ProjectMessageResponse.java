@@ -16,7 +16,7 @@ public class ProjectMessageResponse {
 
     public static PostProjectResponse from(String message) {
         return PostProjectResponse.builder()
-                .message(message)
+//                .message(message)
                 .build();
     }
 
