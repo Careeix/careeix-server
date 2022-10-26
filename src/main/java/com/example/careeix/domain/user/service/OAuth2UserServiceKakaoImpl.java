@@ -72,16 +72,21 @@ public class OAuth2UserServiceKakaoImpl implements OAuth2UserServiceKakao {
                     JsonParser parser = new JsonParser();
                     JsonElement element = parser.parse(result);
 
-                    JsonObject properties = element.getAsJsonObject().get("properties").getAsJsonObject();
-                    JsonObject kakao_account = element.getAsJsonObject().get("kakao_account").getAsJsonObject();
-
+//                    JsonObject properties = element.getAsJsonObject().get("properties").getAsJsonObject();
                     String id = element.getAsJsonObject().get("id").getAsString();
-                    String email = kakao_account.getAsJsonObject().get("email").getAsString();
-
                     resultMap.put("id", id);
-                    resultMap.put("email", email);
+
+                    try{
+                        JsonObject kakao_account = element.getAsJsonObject().get("kakao_account").getAsJsonObject();
+                        String email = kakao_account.getAsJsonObject().get("email").getAsString();
+                        resultMap.put("email", email);
+                    }catch (NullPointerException e){
+                        resultMap.put("email", null);
+                    }
 
                     System.out.println("결과 : " + resultMap);
+
+
                     br.close();
                 } else if (responseCode == HttpURLConnection.HTTP_UNAUTHORIZED) {
                     throw new KakaoUnAuthorizedFaildException();
