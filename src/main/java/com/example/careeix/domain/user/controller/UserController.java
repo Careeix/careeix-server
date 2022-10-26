@@ -99,7 +99,7 @@ public class UserController {
     @ApiResponses(value = {
             @ApiResponse(code = 400 , message = "회원의 닉네임을 입력해주세요. \t\n 닉네임은 2~10글자의 영소문자, 숫자, 한글만 가능합니다."),
             @ApiResponse(code = 400 , message = "JWT 토큰이 비어있습니다."),
-            @ApiResponse(code = 403 , message = "ACCESS-TOKEN이 만료되었습니다."),
+            @ApiResponse(code = 403 , message = "ACCESS-TOKEN이 맞지 않습니다."),
             @ApiResponse(code = 409, message = "해당 닉네임은 이미 존재하는 닉네임입니다.", response = ApiErrorResponse.class),
     })
     @PostMapping("/update-profile")
@@ -125,7 +125,7 @@ public class UserController {
             "사용자의 reqeust정보들을 고칩니다. \t\n 닉네임, 사진 고치는 건 프로필 수정 api입니다.")
     @ApiResponses(value = {
             @ApiResponse(code = 400 , message = "JWT 토큰이 비어있습니다."),
-            @ApiResponse(code = 403 , message = "ACCESS-TOKEN이 만료되었습니다.", response = ApiErrorResponse.class)
+            @ApiResponse(code = 403 , message = "ACCESS-TOKEN이 맞지 않습니다.", response = ApiErrorResponse.class)
     })
     @PostMapping("/update-info")
     public ApplicationResponse<MessageResponse> updateUserInfo(@Valid @ModelAttribute UserInfoRequest userInfoRequest) {
@@ -183,7 +183,7 @@ public class UserController {
     @PostMapping("/withdraw")
     @ApiResponses(value = {
             @ApiResponse(code = 400 , message = "JWT 토큰이 비어있습니다."),
-            @ApiResponse(code = 403 , message = "ACCESS-TOKEN이 만료되었습니다.", response = ApiErrorResponse.class),
+            @ApiResponse(code = 403 , message = "ACCESS-TOKEN이 맞지 않습니다.", response = ApiErrorResponse.class),
     })
     public ApplicationResponse<MessageResponse> withdrawUser() {
         long userId = jwtService.getUserId();
