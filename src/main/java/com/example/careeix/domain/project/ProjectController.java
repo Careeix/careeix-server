@@ -8,6 +8,9 @@ import com.example.careeix.domain.project.entity.Project;
 import com.example.careeix.domain.project.entity.ProjectDetail;
 import com.example.careeix.domain.project.service.ProjectService;
 import com.example.careeix.utils.dto.ApplicationResponse;
+import com.example.careeix.utils.jwt.exception.ExpireAccessException;
+import com.example.careeix.utils.jwt.exception.JwtException;
+import com.example.careeix.utils.jwt.exception.NotFoundJwtException;
 import com.example.careeix.utils.jwt.service.JwtService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -58,7 +61,14 @@ public class ProjectController {
      *
      * @return BaseResponse<PostProjectResponse>
      */
-    @ApiOperation(value = "프로젝트 등록")
+    @ApiOperation(value = "프로젝트 등록", notes = "User JWT값은 공유한 API구글시트 참고해주시면 감사하겠습니다. \n" +
+            "end_date, is_proceed를 제외한 모든 값은 Mandatory입니다. \n" +
+            "단, is_proceed의 값이 (0 : 진행 종료)일 경우, end_date의 값 또한 Mandatory입니다. \n" +
+            "is_proceed의 default 값은 0입니다.")
+    @ApiResponses({
+            @ApiResponse(code = 403, message = "헤더의 JWT 토큰이 맞지 않거나 만료되었습니다.", response = NotFoundJwtException.class),
+            @ApiResponse(code = 404, message = "헤더의 JWT 토큰이 비어있습니다.", response = ExpireAccessException.class)
+    })
     @ResponseBody
     @PostMapping("")
     public BaseResponse<PostProjectResponse> createProject(@RequestBody @Valid PostProjectRequest postProjectRequest){
