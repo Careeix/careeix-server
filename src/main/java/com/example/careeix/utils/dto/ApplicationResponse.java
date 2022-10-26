@@ -3,7 +3,6 @@ package com.example.careeix.utils.dto;
 import com.example.careeix.utils.exception.ApplicationException;
 import lombok.*;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDateTime;
 
@@ -14,7 +13,7 @@ import java.time.LocalDateTime;
 public class ApplicationResponse<T> {
 
     private boolean success;
-    private int httpCode;
+    private String code;
     private LocalDateTime localDateTime;
     private HttpStatus httpStatus;
     private String message;
@@ -23,7 +22,7 @@ public class ApplicationResponse<T> {
     public static <T> ApplicationResponse<T> create(String message, T data){
         return (ApplicationResponse<T>) ApplicationResponse.builder()
                 .success(true)
-                .httpCode(HttpStatus.CREATED.value())
+                .code(String.valueOf(HttpStatus.CREATED.value()))
                 .localDateTime(LocalDateTime.now())
                 .message(message)
                 .httpStatus(HttpStatus.CREATED)
@@ -34,7 +33,7 @@ public class ApplicationResponse<T> {
     public static <T> ApplicationResponse<T> ok(){
         return (ApplicationResponse<T>) ApplicationResponse.builder()
                 .success(true)
-                .httpCode(HttpStatus.OK.value())
+                .code(String.valueOf(HttpStatus.OK.value()))
                 .data(null)
                 .localDateTime(LocalDateTime.now())
                 .message("성공")
@@ -45,7 +44,7 @@ public class ApplicationResponse<T> {
     public static <T> ApplicationResponse<T> ok(T data){
         return (ApplicationResponse<T>) ApplicationResponse.builder()
                 .success(true)
-                .httpCode(HttpStatus.OK.value())
+                .code(String.valueOf(HttpStatus.OK.value()))
                 .data(data)
                 .localDateTime(LocalDateTime.now())
                 .message("성공")
@@ -57,7 +56,7 @@ public class ApplicationResponse<T> {
     public static <T> ApplicationResponse<T> error(ApplicationException e){
         return (ApplicationResponse<T>) ApplicationResponse.builder()
                 .success(false)
-                .httpCode(e.getHttpStatus().value())
+                .code(String.valueOf(e.getHttpStatus().value()))
                 .localDateTime(LocalDateTime.now())
                 .httpStatus(e.getHttpStatus())
                 .message(e.getMessage())

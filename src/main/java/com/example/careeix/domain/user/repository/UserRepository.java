@@ -3,6 +3,7 @@ package com.example.careeix.domain.user.repository;
 import com.example.careeix.domain.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 
@@ -11,7 +12,7 @@ public interface UserRepository extends JpaRepository<User, Long>, UserRepositor
     Optional<User> findByUserId(Long userId);
 
 
-    Optional<User> findByUserEmail(String userEmail);
+    List<User> findByUserJob(String userJob);
 
     Optional<User> findBySocialId(String socialId);
 

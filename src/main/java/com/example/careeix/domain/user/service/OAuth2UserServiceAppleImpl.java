@@ -1,13 +1,11 @@
 package com.example.careeix.domain.user.service;
 
-import com.example.careeix.domain.user.dto.KakaoLoginRequest;
 import com.example.careeix.domain.user.entity.User;
 import com.example.careeix.domain.user.exception.oauth2.kakao.*;
 import com.example.careeix.domain.user.repository.UserRepository;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.gson.JsonSyntaxException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -21,11 +19,9 @@ import java.net.ProtocolException;
 import java.net.URL;
 import java.util.HashMap;
 
-import static com.example.careeix.domain.user.constant.UserConstants.*;
-
 @Service
 @RequiredArgsConstructor
-public class OAuth2UserServiceKakaoImpl implements OAuth2UserServiceKakao {
+public class OAuth2UserServiceAppleImpl implements OAuth2UserServiceApple {
 
     private final UserRepository userRepository;
 
@@ -36,12 +32,12 @@ public class OAuth2UserServiceKakaoImpl implements OAuth2UserServiceKakao {
      */
 
     @Override
-    public User validateKakaoAccessToken(String accessToken) {
-        HashMap<String, Object> kakaoUserInfo = getKakaoUserInfo(accessToken);
-        return saveOrGetKakaoUser(kakaoUserInfo);
+    public User validateAppleAccessToken(String accessToken) {
+        HashMap<String, Object> kakaoUserInfo = getAppleUserInfo(accessToken);
+        return saveOrGetAppleUser(kakaoUserInfo);
     }
 
-    private HashMap<String, Object> getKakaoUserInfo(String accessToken) {
+    private HashMap<String, Object> getAppleUserInfo(String accessToken) {
 
         HashMap<String, Object> resultMap = new HashMap<>();
 
@@ -72,21 +68,16 @@ public class OAuth2UserServiceKakaoImpl implements OAuth2UserServiceKakao {
                     JsonParser parser = new JsonParser();
                     JsonElement element = parser.parse(result);
 
-//                    JsonObject properties = element.getAsJsonObject().get("properties").getAsJsonObject();
-                    String id = element.getAsJsonObject().get("id").getAsString();
-                    resultMap.put("id", id);
+                    JsonObject properties = element.getAsJsonObject().get("properties").getAsJsonObject();
+                    JsonObject kakao_account = element.getAsJsonObject().get("kakao_account").getAsJsonObject();
 
-                    try{
-                        JsonObject kakao_account = element.getAsJsonObject().get("kakao_account").getAsJsonObject();
-                        String email = kakao_account.getAsJsonObject().get("email").getAsString();
-                        resultMap.put("email", email);
-                    }catch (NullPointerException e){
-                        resultMap.put("email", null);
-                    }
+                    String id = element.getAsJsonObject().get("id").getAsString();
+                    String email = kakao_account.getAsJsonObject().get("email").getAsString();
+
+                    resultMap.put("id", id);
+                    resultMap.put("email", email);
 
                     System.out.println("결과 : " + resultMap);
-
-
                     br.close();
                 } else if (responseCode == HttpURLConnection.HTTP_UNAUTHORIZED) {
                     throw new KakaoUnAuthorizedFaildException();
@@ -108,7 +99,7 @@ public class OAuth2UserServiceKakaoImpl implements OAuth2UserServiceKakao {
         return resultMap;
     }
 
-        private User saveOrGetKakaoUser(HashMap<String, Object> kakaoUserInfo) {
+        private User saveOrGetAppleUser(HashMap<String, Object> kakaoUserInfo) {
         // 회원가입을 한 유저면 반환, 아니면 셋팅
         User user = userRepository.findBySocialId((String) kakaoUserInfo.get("id"))
                 .orElse(User.toEntityOfKakaoUser(kakaoUserInfo));
