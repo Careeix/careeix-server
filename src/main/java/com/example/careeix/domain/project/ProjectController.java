@@ -8,6 +8,7 @@ import com.example.careeix.domain.project.entity.Project;
 import com.example.careeix.domain.project.entity.ProjectDetail;
 import com.example.careeix.domain.project.service.ProjectService;
 import com.example.careeix.utils.dto.ApplicationResponse;
+import com.example.careeix.utils.exception.ApiErrorResponse;
 import com.example.careeix.utils.jwt.exception.ExpireAccessException;
 import com.example.careeix.utils.jwt.exception.JwtException;
 import com.example.careeix.utils.jwt.exception.NotFoundJwtException;
@@ -66,8 +67,8 @@ public class ProjectController {
             "단, is_proceed의 값이 (0 : 진행 종료)일 경우, end_date의 값 또한 Mandatory입니다. \n" +
             "is_proceed의 default 값은 0입니다.")
     @ApiResponses({
-            @ApiResponse(code = 403, message = "헤더의 JWT 토큰이 맞지 않거나 만료되었습니다.", response = NotFoundJwtException.class),
-            @ApiResponse(code = 404, message = "헤더의 JWT 토큰이 비어있습니다.", response = ExpireAccessException.class)
+            @ApiResponse(code = 403, message = "헤더의 JWT 토큰이 맞지 않거나 만료되었습니다.", response = ApiErrorResponse.class),
+            @ApiResponse(code = 404, message = "헤더의 JWT 토큰이 비어있습니다.", response = ApiErrorResponse.class)
     })
     @ResponseBody
     @PostMapping("")
