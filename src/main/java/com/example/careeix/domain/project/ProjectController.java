@@ -34,6 +34,23 @@ public class ProjectController {
     private final JwtService jwtService;
     private final ProjectService projectService;
 
+    //날짜
+    public int compareDates(String start, String end) {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        int result = 1;
+
+        try {
+            Date sd = simpleDateFormat.parse(start);
+            Date ed = simpleDateFormat.parse(end);
+            result = sd.compareTo(ed);
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return result;
+    }
+
 
     /**
      * 등록 API
@@ -120,21 +137,8 @@ public class ProjectController {
         }
     }
 
-    public int compareDates(String start, String end) {
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        int result = 1;
 
-        try {
-            Date sd = simpleDateFormat.parse(start);
-            Date ed = simpleDateFormat.parse(end);
-            result = sd.compareTo(ed);
 
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-
-        return result;
-    }
 
 }
 
