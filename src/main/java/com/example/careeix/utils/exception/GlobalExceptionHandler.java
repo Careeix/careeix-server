@@ -23,7 +23,7 @@ public class GlobalExceptionHandler {
         MethodArgumentNotValidException e
     ){
         String errorCode = requireNonNull(e.getFieldError()).getDefaultMessage();
-        ApiErrorResponse exceptionResponse = new ApiErrorResponse(errorCode, Arrays.asList(e.getMessage()));
+        ApiErrorResponse exceptionResponse = new ApiErrorResponse(errorCode, e.getMessage());
         log.warn(LOG_FORMAT, e.getClass().getSimpleName(), errorCode, "@Valid");
 
         return ResponseEntity
@@ -43,7 +43,7 @@ public class GlobalExceptionHandler {
         );
         return ResponseEntity
                 .status(e.getHttpStatus())
-                .body(new ApiErrorResponse(errorCode, Arrays.asList(e.getMessage())));
+                .body(new ApiErrorResponse(errorCode,e.getMessage()));
 
     }
 
@@ -57,7 +57,7 @@ public class GlobalExceptionHandler {
         );
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ApiErrorResponse(INTERNAL_SERVER_ERROR_CODE, Arrays.asList("데이터 연결 에러가 발생했습니다.")));
+                .body(new ApiErrorResponse(INTERNAL_SERVER_ERROR_CODE, "데이터 연결 에러가 발생했습니다."));
     }
 
     @ExceptionHandler(RuntimeException.class)
@@ -70,6 +70,6 @@ public class GlobalExceptionHandler {
         );
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ApiErrorResponse(INTERNAL_SERVER_ERROR_CODE, Arrays.asList("런타임 에러가 발생했습니다.")));
+                .body(new ApiErrorResponse(INTERNAL_SERVER_ERROR_CODE, "런타임 에러가 발생했습니다."));
     }
 }
