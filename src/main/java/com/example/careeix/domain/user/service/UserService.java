@@ -21,7 +21,7 @@ public interface UserService {
 
     User updateUserProfile(long userId, String nickName, MultipartFile file);
 
-    void withdrawUser(long userId);
+    User withdrawUser(long userId);
 
     User updateUserInfo(long userId, UserInfoRequest userInfoRequest);
 }
