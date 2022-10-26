@@ -10,8 +10,7 @@ public class UserConstants {
     public enum eUser {
 
         eDELETE("DELETED"),
-        eACTIVE("ACTIVE"),
-        ;
+        eACTIVE("ACTIVE");
 
         private final String value;
     }

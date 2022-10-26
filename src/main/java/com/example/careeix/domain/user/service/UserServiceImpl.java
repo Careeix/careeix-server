@@ -85,7 +85,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void withdrawUser(long userId) {
         User user = this.getUserByUserId(userId);
-        user.setStatus(UserConstants.eUser.eDELETE.ordinal());
+        user.setStatus(0);
     }
 
     @Override
