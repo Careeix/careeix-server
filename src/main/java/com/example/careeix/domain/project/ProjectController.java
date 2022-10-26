@@ -63,9 +63,12 @@ public class ProjectController {
      * @return BaseResponse<PostProjectResponse>
      */
     @ApiOperation(value = "프로젝트 등록", notes = "User JWT값은 공유한 API구글시트 참고해주시면 감사하겠습니다. \n" +
-            "end_date, is_proceed를 제외한 모든 값은 Mandatory입니다. \n" +
+            "end_date을 제외한 모든 값은 Mandatory입니다. \n" +
+            "\n" +
             "단, is_proceed의 값이 (0 : 진행 종료)일 경우, end_date의 값 또한 Mandatory입니다. \n" +
-            "is_proceed의 default 값은 0입니다.")
+            "is_proceed의 값이 (1 : 진행 중)일 경우, end_date의 값은 null로 저장됩니다. \n" +
+            "\n" +
+            "is_proceed의 default 값은 (0 : 진행 종료)입니다.")
     @ApiResponses({
             @ApiResponse(code = 403, message = "헤더의 JWT 토큰이 맞지 않거나 만료되었습니다.", response = ApiErrorResponse.class),
             @ApiResponse(code = 404, message = "헤더의 JWT 토큰이 비어있습니다.", response = ApiErrorResponse.class)
@@ -102,6 +105,10 @@ public class ProjectController {
             }
             if (postProjectRequest.getIntroduction() == null) {
                 return new BaseResponse<>(EMPTY_INTRODUCTION);
+            }
+            // 진행 중 일 경우, end_date = null로 set
+            if (postProjectRequest.getIs_proceed()==1) {
+                postProjectRequest.setEnd_date(null);
             }
 
 
@@ -147,6 +154,8 @@ public class ProjectController {
             return new BaseResponse<>((exception.getStatus()));
         }
     }
+
+
 
 
 
