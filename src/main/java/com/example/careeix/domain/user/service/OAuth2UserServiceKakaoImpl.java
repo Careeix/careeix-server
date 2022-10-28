@@ -76,13 +76,7 @@ public class OAuth2UserServiceKakaoImpl implements OAuth2UserServiceKakao {
                     String id = element.getAsJsonObject().get("id").getAsString();
                     resultMap.put("id", id);
 
-                    try{
-                        JsonObject kakao_account = element.getAsJsonObject().get("kakao_account").getAsJsonObject();
-                        String email = kakao_account.getAsJsonObject().get("email").getAsString();
-                        resultMap.put("email", email);
-                    }catch (NullPointerException e){
-                        resultMap.put("email", null);
-                    }
+
 
                     System.out.println("결과 : " + resultMap);
 
