@@ -20,7 +20,6 @@ public class LoginResponse {
     private List<String> userDetailJobs;
     private int userWork;
     private String userNickname;
-    private String userEmail;
     private String userProfileImg;
     private String userProfileColor;
     private String userIntro;

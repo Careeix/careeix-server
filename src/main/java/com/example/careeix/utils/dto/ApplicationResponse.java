@@ -17,11 +17,11 @@ public class ApplicationResponse<T> {
     private String message;
     private T data; // == body
 
-    public static <T> ApplicationResponse<T> create(String message, T data){
+    public static <T> ApplicationResponse<T> create(T data){
         return (ApplicationResponse<T>) ApplicationResponse.builder()
                 .code(String.valueOf(HttpStatus.CREATED.value()))
                 .timeStamp(LocalDateTime.now())
-                .message(message)
+                .message("성공")
                 .data(data)
                 .build();
     }
