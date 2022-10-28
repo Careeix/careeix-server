@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.util.List;
@@ -26,6 +27,7 @@ public class KakaoLoginRequest {
 
     @NotBlank(message = "회원의 직업을 입력해주세요.")
     private String job;
+
     private int userWork;
 
     @Size(min = 1, max = 3, message = "상세 직업은 1개 이상 3개 이하로 작성해야 합니다.")

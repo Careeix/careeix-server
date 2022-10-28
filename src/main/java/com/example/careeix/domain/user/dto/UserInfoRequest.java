@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.List;
 
@@ -25,8 +26,10 @@ public class UserInfoRequest {
 //    @ApiModelProperty(notes = "닉네임을 입력해 주세요.")
 //    private String userNickName;
 
+    @NotNull
     private String userJob;
 
+    @NotNull
     private int userWork;
 
     @Size(min = 1, max = 3, message = "상세 직업은 1개 이상 3개 이하로 작성해야 합니다.")

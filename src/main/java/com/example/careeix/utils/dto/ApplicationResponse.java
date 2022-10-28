@@ -12,53 +12,43 @@ import java.time.LocalDateTime;
 @Builder
 public class ApplicationResponse<T> {
 
-    private boolean success;
     private String code;
-    private LocalDateTime localDateTime;
-    private HttpStatus httpStatus;
+    private LocalDateTime timeStamp;
     private String message;
     private T data; // == body
 
     public static <T> ApplicationResponse<T> create(String message, T data){
         return (ApplicationResponse<T>) ApplicationResponse.builder()
-                .success(true)
                 .code(String.valueOf(HttpStatus.CREATED.value()))
-                .localDateTime(LocalDateTime.now())
+                .timeStamp(LocalDateTime.now())
                 .message(message)
-                .httpStatus(HttpStatus.CREATED)
                 .data(data)
                 .build();
     }
 
     public static <T> ApplicationResponse<T> ok(){
         return (ApplicationResponse<T>) ApplicationResponse.builder()
-                .success(true)
                 .code(String.valueOf(HttpStatus.OK.value()))
                 .data(null)
-                .localDateTime(LocalDateTime.now())
+                .timeStamp(LocalDateTime.now())
                 .message("성공")
-                .httpStatus(HttpStatus.OK)
                 .build();
     }
 
     public static <T> ApplicationResponse<T> ok(T data){
         return (ApplicationResponse<T>) ApplicationResponse.builder()
-                .success(true)
                 .code(String.valueOf(HttpStatus.OK.value()))
                 .data(data)
-                .localDateTime(LocalDateTime.now())
+                .timeStamp(LocalDateTime.now())
                 .message("성공")
-                .httpStatus(HttpStatus.OK)
                 .build();
     }
 
 
     public static <T> ApplicationResponse<T> error(ApplicationException e){
         return (ApplicationResponse<T>) ApplicationResponse.builder()
-                .success(false)
                 .code(String.valueOf(e.getHttpStatus().value()))
-                .localDateTime(LocalDateTime.now())
-                .httpStatus(e.getHttpStatus())
+                .timeStamp(LocalDateTime.now())
                 .message(e.getMessage())
                 .build();
     }
