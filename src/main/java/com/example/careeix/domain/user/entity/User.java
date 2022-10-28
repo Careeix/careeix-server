@@ -1,6 +1,8 @@
 package com.example.careeix.domain.user.entity;
 
 import com.example.careeix.config.BaseEntity;
+import com.example.careeix.domain.project.entity.Project;
+import com.example.careeix.domain.project.entity.ProjectDetail;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.validator.constraints.br.CPF;
@@ -42,6 +44,8 @@ public class User extends BaseEntity {
     @OneToMany(mappedBy = "user")
     private List<UserJob> userJobs = new ArrayList<>();
 
+    @OneToMany(mappedBy = "user")
+    private List<Project> projects = new ArrayList<>();
 
     public static User toEntityOfKakaoUser(HashMap<String, Object> userInfo) {
         return User.builder()
