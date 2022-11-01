@@ -110,7 +110,7 @@ public class UserController {
             @ApiResponse(code = 409, message = "중복된 닉네임 입니다.(U1001)", response = ApiErrorResponse.class),
     })
     @PostMapping("/update-profile")
-    public ApplicationResponse<MessageResponse> updateUserProfile(@Valid @ModelAttribute UserProfileRequest userProfileRequest,
+    public ApplicationResponse<MessageResponse> updateUserProfile(@Valid UserProfileRequest userProfileRequest,
                                                     @RequestParam(required = false) MultipartFile file) {
         if (!isRegexNickname(userProfileRequest.getUserNickName())) {
             throw  new UserNicknameValidException();
@@ -132,7 +132,7 @@ public class UserController {
      */
     @ApiOperation(value = "사용자 정보 수정  - jwt 0", notes = "사용자 정보를 수정합니다. 사용자 정보 수정 페이지입니다. \t\n jwt로 사용자 판별하고 " +
             "사용자의 reqeust정보들을 고칩니다. " +
-            "\t\n requestBody 소개글(intoContent)null 허용, 나머진 필수값(세부직무 1~3개, 년차(0~3)), 중복된 세부 직무 여부 체크"+
+            "\t\n requestBody 소개글(userIntro)null 허용, 나머진 필수값(세부직무 1~3개, 년차(0~3)), 중복된 세부 직무 여부 체크"+
             "\t\n 닉네임, 사진 수정: 프로필 수정 api.")
     @ApiResponses(value = {
             @ApiResponse(code = 400 , message = "JWT 토큰이 비어있습니다.(J2001)"),
@@ -140,7 +140,7 @@ public class UserController {
             @ApiResponse(code = 409, message = "중복된 세부직무가 있습니다.(U1005)", response = ApiErrorResponse.class)
     })
     @PostMapping("/update-info")
-    public ApplicationResponse<MessageResponse> updateUserInfo(@Valid @ModelAttribute UserInfoRequest userInfoRequest) {
+    public ApplicationResponse<MessageResponse> updateUserInfo(@Valid UserInfoRequest userInfoRequest) {
         this.checkDuplicateJob(userInfoRequest.getUserDetailJob());
 
         long userId = jwtService.getUserId();
@@ -270,7 +270,7 @@ public class UserController {
         }
 
         if (!isRegexNickname(kakaoLoginRequest.getNickname())) {
-            throw  new UserNicknameValidException();
+            throw new UserNicknameValidException();
         }
 
         if (user.getUserJob() != null) {

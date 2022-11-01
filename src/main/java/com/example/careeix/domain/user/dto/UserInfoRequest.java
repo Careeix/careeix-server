@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.List;
@@ -29,13 +31,14 @@ public class UserInfoRequest {
     @NotNull
     private String userJob;
 
-    @NotNull
+    @Min(0)
+    @Max(3)
     private int userWork;
 
-    @Size(min = 1, max = 3, message = "상세 직업은 1개 이상 3개 이하로 작성해야 합니다.")
+    @Size(min = 1, max = 3)
     private List<String> userDetailJob;
 
-    private String intoContent;
+    private String userIntro;
 
 
 }

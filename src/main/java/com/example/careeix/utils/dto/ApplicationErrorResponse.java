@@ -1,5 +1,6 @@
 package com.example.careeix.utils.dto;
 
+import com.example.careeix.utils.exception.ApiErrorResponse;
 import com.example.careeix.utils.exception.ApplicationException;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,9 +20,9 @@ public class ApplicationErrorResponse<T> {
     private LocalDateTime timeStamp;
     private String message;
 
-    public static <T> ApplicationErrorResponse<T> error(ApplicationException e){
+    public static <T> ApplicationErrorResponse<T> error(ApiErrorResponse e){
         return (ApplicationErrorResponse<T>) ApplicationErrorResponse.builder()
-                .code(e.getErrorCode())
+                .code(String.valueOf(e.getCode()))
                 .timeStamp(LocalDateTime.now())
                 .message(e.getMessage())
                 .build();
