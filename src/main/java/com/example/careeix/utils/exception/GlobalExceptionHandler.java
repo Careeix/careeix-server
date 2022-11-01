@@ -21,21 +21,24 @@ import static java.util.Objects.requireNonNull;
 public class GlobalExceptionHandler {
     private static final String LOG_FORMAT ="Class : {}, CODE : {}, Message : {}";
     private static final String INTERNAL_SERVER_ERROR_CODE = "S0001";
+    private static final String BAD_REQUEST_ERROR_CODE = "S0002";
+    ;
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ApplicationErrorResponse<ApiErrorResponse> methodArgumentNotValidException(
+    public ResponseEntity<ApiErrorResponse> methodArgumentNotValidException(
         MethodArgumentNotValidException e
     ){
         String errorCode = requireNonNull(e.getFieldError()).getDefaultMessage();
-        ApiErrorResponse exceptionResponse = new ApiErrorResponse(errorCode, "유효하지 않는 값입니다.");
+        ApiErrorResponse exceptionResponse = new ApiErrorResponse(BAD_REQUEST_ERROR_CODE, errorCode);
         log.warn(LOG_FORMAT, e.getClass().getSimpleName(), errorCode, "@Valid");
 
-        return ApplicationErrorResponse
-                .error(exceptionResponse);
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(exceptionResponse);
     }
 
     @ExceptionHandler(ApplicationException.class)
-    public ApplicationErrorResponse<ApiErrorResponse> applicationException(ApplicationException e) {
+    public ResponseEntity<ApiErrorResponse> applicationException(ApplicationException e) {
         String errorCode = e.getErrorCode();
         ApiErrorResponse exceptionResponse = new ApiErrorResponse(errorCode, e.getMessage());
 
@@ -45,13 +48,14 @@ public class GlobalExceptionHandler {
                 errorCode,
                 e.getMessage()
         );
-        return ApplicationErrorResponse
-                .error(exceptionResponse);
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(exceptionResponse);
 
     }
 
     @ExceptionHandler(DataAccessException.class)
-    public ApplicationErrorResponse<ApiErrorResponse> dataAccessException(DataAccessException e) {
+    public ResponseEntity<ApiErrorResponse> dataAccessException(DataAccessException e) {
         ApiErrorResponse exceptionResponse = new ApiErrorResponse(INTERNAL_SERVER_ERROR_CODE, "데이터 연결 에러가 발생했습니다.");
 
         log.error(
@@ -60,26 +64,26 @@ public class GlobalExceptionHandler {
                 INTERNAL_SERVER_ERROR_CODE,
                 e.getMessage()
         );
-        return ApplicationErrorResponse
-                .error(exceptionResponse);
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(exceptionResponse);
     }
 
     @ExceptionHandler(RuntimeException.class)
-    public ApplicationErrorResponse<ApiErrorResponse> runtimeException(RuntimeException e) {
+    public ResponseEntity<ApiErrorResponse> runtimeException(RuntimeException e) {
         log.error(
                 LOG_FORMAT,
                 e.getClass().getSimpleName(),
                 INTERNAL_SERVER_ERROR_CODE,
                 e.getMessage()
         );
-        ApiErrorResponse exceptionResponse = new ApiErrorResponse(INTERNAL_SERVER_ERROR_CODE, "런타임 에러가 발생했습니.");
-
-        return ApplicationErrorResponse
-                .error(exceptionResponse);
+        ApiErrorResponse exceptionResponse = new ApiErrorResponse(INTERNAL_SERVER_ERROR_CODE, "런타임 에러가 발생했습니다.");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(exceptionResponse);
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ApplicationErrorResponse<ApiErrorResponse> httpMessageException(HttpMessageNotReadableException e) {
+    public ResponseEntity<ApiErrorResponse> httpMessageException(HttpMessageNotReadableException e) {
         log.error(
                 LOG_FORMAT,
                 e.getClass().getSimpleName(),
@@ -88,8 +92,9 @@ public class GlobalExceptionHandler {
         );
         ApiErrorResponse exceptionResponse = new ApiErrorResponse(INTERNAL_SERVER_ERROR_CODE, "값을 알맞게 모두 입력해주세요");
 
-        return ApplicationErrorResponse
-                .error(exceptionResponse);
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(exceptionResponse);
     }
 
 

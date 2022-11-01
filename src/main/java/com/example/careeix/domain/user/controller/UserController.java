@@ -16,6 +16,7 @@ import com.example.careeix.utils.exception.ApplicationException;
 import com.example.careeix.utils.jwt.exception.ExpireAccessException;
 import com.example.careeix.utils.jwt.exception.NotFoundJwtException;
 import com.example.careeix.utils.jwt.service.JwtService;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -99,7 +100,7 @@ public class UserController {
 
     /**
      * 사용자 프로필 수정
-     * @param userProfileRequest, file
+     * @param userNickname, file
      * @return ResponseEntity<String>
      */
     @ApiOperation(value = "사용자 프로필 수정  - jwt 0", notes = "사용자 프로필을 수정합니다. \t\n 이미지파일: multipartfile 타입 이용, null 허용" +
@@ -110,14 +111,14 @@ public class UserController {
             @ApiResponse(code = 409, message = "중복된 닉네임 입니다.(U1001)", response = ApiErrorResponse.class),
     })
     @PostMapping("/update-profile")
-    public ApplicationResponse<MessageResponse> updateUserProfile(@Valid UserProfileRequest userProfileRequest,
+    public ApplicationResponse<MessageResponse> updateUserProfile(@RequestParam String userNickname,
                                                     @RequestParam(required = false) MultipartFile file) {
-        if (!isRegexNickname(userProfileRequest.getUserNickName())) {
-            throw  new UserNicknameValidException();
+        if (!isRegexNickname(userNickname)) {
+            throw new UserNicknameValidException();
         }
         long userId = jwtService.getUserId();
 
-        User user = userService.updateUserProfile(userId, userProfileRequest.getUserNickName(), file);
+        User user = userService.updateUserProfile(userId, userNickname, file);
 
         return ApplicationResponse.ok(MessageResponse.builder()
                 .message("사용자 프로필이 수정되었습니다.")
@@ -139,8 +140,9 @@ public class UserController {
             @ApiResponse(code = 403 , message = "ACCESS-TOKEN이 맞지 않습니다.(J2002)"),
             @ApiResponse(code = 409, message = "중복된 세부직무가 있습니다.(U1005)", response = ApiErrorResponse.class)
     })
+    @JsonProperty
     @PostMapping("/update-info")
-    public ApplicationResponse<MessageResponse> updateUserInfo(@Valid UserInfoRequest userInfoRequest) {
+    public ApplicationResponse<MessageResponse> updateUserInfo(@Valid @RequestBody UserInfoRequest userInfoRequest) {
         this.checkDuplicateJob(userInfoRequest.getUserDetailJob());
 
         long userId = jwtService.getUserId();
