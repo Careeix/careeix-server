@@ -11,11 +11,10 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@ApiModel(description = "로그인 응답 객체")
-public class LoginResponse {
+@ApiModel(description = "정보 응답 객체")
+public class InfoResponse {
     private String message;
     private long userId;
-    private String jwt;
     private String userJob;
     private List<String> userDetailJobs;
     private int userWork;
@@ -26,8 +25,8 @@ public class LoginResponse {
     private int userSocialProvider;
 
 
-    public static LoginResponse from(User user) {
-        return LoginResponse.builder()
+    public static InfoResponse from(User user) {
+        return InfoResponse.builder()
                 .build();
     }
 

@@ -18,9 +18,9 @@ import javax.validation.constraints.Pattern;
 @ApiModel(description = "사용자 프로필 수정을 위한 요청 객체")
 public class UserProfileRequest {
 
-    @NotBlank(message = "회원의 닉네임을 입력해주세요.")
-    @Pattern(regexp = "^[a-z0-9가-힣]{2,10}$", message = "닉네임은 2~10글자의 영소문자, 숫자, 한글만 가능합니다.")
-    @ApiModelProperty(notes = "닉네임을 입력해 주세요.")
+    @NotBlank
+//    @Pattern(regexp = "^[a-z0-9가-힣]{2,10}$", message = "닉네임은 2~10글자의 영소문자, 숫자, 한글만 가능합니다.")
+//    @ApiModelProperty(notes = "닉네임을 입력해 주세요.")
     private String userNickName;
 
 

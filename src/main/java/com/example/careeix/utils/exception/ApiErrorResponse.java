@@ -10,13 +10,13 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 @JsonPropertyOrder({"code", "timeStamp", "message"})
 public class ApiErrorResponse {
-//    private boolean success;
+
     private String code;
     private LocalDateTime timeStamp;
     private String message;
 
     public ApiErrorResponse(String code, String message) {
-//        this.success = false;
+
         this.code = code;
         this.timeStamp = LocalDateTime.now().withNano(0);
         this.message = message;

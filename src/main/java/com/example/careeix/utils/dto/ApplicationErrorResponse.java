@@ -1,5 +1,6 @@
 package com.example.careeix.utils.dto;
 
+import com.example.careeix.utils.exception.ApiErrorResponse;
 import com.example.careeix.utils.exception.ApplicationException;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,20 +16,14 @@ import java.time.LocalDateTime;
 @Builder
 public class ApplicationErrorResponse<T> {
 
-    private boolean success;
-    private int httpCode;
-    private String errorCode;
-    private LocalDateTime localDateTime;
-    private HttpStatus httpStatus;
+    private String code;
+    private LocalDateTime timeStamp;
     private String message;
 
-    public static <T> ApplicationErrorResponse<T> error(ApplicationException e){
+    public static <T> ApplicationErrorResponse<T> error(ApiErrorResponse e){
         return (ApplicationErrorResponse<T>) ApplicationErrorResponse.builder()
-                .success(false)
-                .httpCode(e.getHttpStatus().value())
-                .errorCode(e.getErrorCode())
-                .localDateTime(LocalDateTime.now())
-                .httpStatus(e.getHttpStatus())
+                .code(String.valueOf(e.getCode()))
+                .timeStamp(LocalDateTime.now())
                 .message(e.getMessage())
                 .build();
     }

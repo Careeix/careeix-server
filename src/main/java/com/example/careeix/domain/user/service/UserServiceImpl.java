@@ -1,7 +1,6 @@
 package com.example.careeix.domain.user.service;
 
 
-import com.example.careeix.domain.user.constant.UserConstants;
 import com.example.careeix.domain.user.dto.KakaoLoginRequest;
 import com.example.careeix.domain.user.dto.UserInfoRequest;
 import com.example.careeix.domain.user.entity.User;
@@ -95,7 +94,7 @@ public class UserServiceImpl implements UserService {
         User user = this.getUserByUserId(userId);
         user.setUserJob(userInfoRequest.getUserJob());
         user.setUserWork(userInfoRequest.getUserWork());
-        user.setIntoContent(userInfoRequest.getIntoContent());
+        user.setIntoContent(userInfoRequest.getUserIntro());
         return userRepository.save(user);
 
     }
