@@ -9,7 +9,7 @@ import org.springframework.http.HttpStatus;
 public enum UserExceptionList {
 
     DENIED_ACCESS("U4001", HttpStatus.FORBIDDEN, "잘못된 접근입니다."),
-    USER_NICKNAME_DUPLICATE("U1001", HttpStatus.CONFLICT, "중복된 닉네임 입니다."),
+    USER_NICKNAME_DUPLICATE("U1001", HttpStatus.CONFLICT, "중복된 닉네임입니다."),
 
 //    USER_LENGTH("U1006", HttpStatus.BAD_REQUEST, "범위를 체크해주세요"),
     USER_NICKNAME_VALID("U1007", HttpStatus.BAD_REQUEST, "유효하지 않은 닉네임 입니다."),

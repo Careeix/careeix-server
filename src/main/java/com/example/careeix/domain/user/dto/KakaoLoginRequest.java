@@ -7,10 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.*;
 import java.util.List;
 
 @Getter
@@ -21,16 +18,18 @@ public class KakaoLoginRequest {
 
     @ApiModelProperty(notes = "카카오 엑세스 토큰 , 입력 값")
     private String accessToken;
-    @NotBlank(message = "회원의 닉네임을 입력해주세요.")
+    @NotBlank
 //    @Pattern(regexp = "^[a-z0-9가-힣]{2,10}$", message = "유효하지 않은 닉네임입니다.")
     private String nickname;
 
-    @NotBlank(message = "회원의 직업을 입력해주세요.")
+    @NotBlank
     private String job;
 
+    @Min(0)
+    @Max(3)
     private int userWork;
 
-    @Size(min = 1, max = 3, message = "상세 직업은 1개 이상 3개 이하로 작성해야 합니다.")
+    @Size(min = 1, max = 3)
     private List<String> userDetailJob;
 
     public User toEntity(Long userId, User kakaoUser) {

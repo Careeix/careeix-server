@@ -1,5 +1,6 @@
 package com.example.careeix.utils.dto;
 
+import com.example.careeix.utils.exception.ApiErrorResponse;
 import com.example.careeix.utils.exception.ApplicationException;
 import lombok.*;
 import org.springframework.http.HttpStatus;
@@ -45,9 +46,9 @@ public class ApplicationResponse<T> {
     }
 
 
-    public static <T> ApplicationResponse<T> error(ApplicationException e){
+    public static <T> ApplicationResponse<T> error(ApiErrorResponse e){
         return (ApplicationResponse<T>) ApplicationResponse.builder()
-                .code(String.valueOf(e.getHttpStatus().value()))
+                .code(String.valueOf(e.getCode()))
                 .timeStamp(LocalDateTime.now())
                 .message(e.getMessage())
                 .build();
