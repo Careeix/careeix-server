@@ -89,7 +89,7 @@ public class UserController {
             "           userWork : 유저 년차 int(0,1,2,3)", response = ApiErrorResponse.class)
     @GetMapping("/profile/{userId}")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "200 response", response = LoginResponse.class),
+            @ApiResponse(code = 200, message = "200 response", response = InfoResponse.class),
             @ApiResponse(code = 400 , message = "해당 아이디를 찾을 수 없습니다.(U1003)")
     })
     public ApplicationResponse<InfoResponse> getUserProfile(@PathVariable long userId) {
