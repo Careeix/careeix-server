@@ -5,10 +5,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDateTime;
 
 import static com.example.careeix.config.BaseResponseStatus.SUCCESS;
+import static com.example.careeix.config.BaseResponseStatus.SUCCESS_CREATE;
 
 //@Getter
 //@AllArgsConstructor
@@ -40,7 +43,7 @@ import static com.example.careeix.config.BaseResponseStatus.SUCCESS;
 @Getter
 @AllArgsConstructor
 @JsonPropertyOrder({"code", "timeStamp", "message", "data"})
-public class BaseResponse<T> {
+public class BaseResponse<T>  {
 //    @JsonProperty("isSuccess")
 //    private final Boolean isSuccess;
     private final String message;
@@ -58,11 +61,13 @@ public class BaseResponse<T> {
         this.timeStamp = LocalDateTime.now().withNano(0);
     }
 
+
     // 요청에 실패한 경우
     public BaseResponse(BaseResponseStatus status) {
 //        this.isSuccess = status.isSuccess();
         this.message = status.getMessage();
-        this.code = SUCCESS.getCode();
+        this.code = status.getCode();
         this.timeStamp = LocalDateTime.now().withNano(0);
     }
 }
+

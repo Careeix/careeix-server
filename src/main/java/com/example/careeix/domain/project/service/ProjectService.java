@@ -1,10 +1,7 @@
 package com.example.careeix.domain.project.service;
 
 import com.example.careeix.config.BaseException;
-import com.example.careeix.domain.project.dto.PostProjectDetail;
-import com.example.careeix.domain.project.dto.PostProjectNote;
-import com.example.careeix.domain.project.dto.PostProjectRequest;
-import com.example.careeix.domain.project.dto.PostProjectResponse;
+import com.example.careeix.domain.project.dto.*;
 import com.example.careeix.domain.project.entity.Project;
 import com.example.careeix.domain.project.entity.ProjectDetail;
 import com.example.careeix.domain.project.entity.ProjectNote;
@@ -26,4 +23,9 @@ public interface ProjectService {
     Optional<Project> getProjectById(long projectId);
     String getProjectDetail(long projectId);
     List<String> getProjectNote(long projectId);
+
+    List<GetProjectResponse> getProjectsByUserId(long userId) throws BaseException;
+
+    void deleteProject(Long projectId) throws BaseException;
+
 }

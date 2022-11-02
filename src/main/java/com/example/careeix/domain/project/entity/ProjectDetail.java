@@ -17,7 +17,7 @@ public class ProjectDetail extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int projectDetailId;
+    private Long projectDetailId;
 
     // FetchType.EAGER 전략 : 항상 목록을 가져오게 되어 있습니다
     // 불필요한 조회를 막으려면 FetchType.LAZY를 설정해야 합니다.

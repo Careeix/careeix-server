@@ -1,10 +1,7 @@
 package com.example.careeix.domain.project.service;
 
 import com.example.careeix.config.BaseException;
-import com.example.careeix.domain.project.dto.PostProjectDetail;
-import com.example.careeix.domain.project.dto.PostProjectNote;
-import com.example.careeix.domain.project.dto.PostProjectRequest;
-import com.example.careeix.domain.project.dto.PostProjectResponse;
+import com.example.careeix.domain.project.dto.*;
 import com.example.careeix.domain.project.entity.Project;
 import com.example.careeix.domain.project.entity.ProjectDetail;
 import com.example.careeix.domain.project.entity.ProjectNote;
@@ -87,5 +84,38 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public List<String> getProjectNote(long projectId) {
         return null;
+    }
+
+    @Override
+
+    public List<GetProjectResponse> getProjectsByUserId(long userId) throws BaseException {
+        try {
+            List<GetProjectResponse> getProjectResponseList = new ArrayList<>();
+            List<Project> projectsByUser_userId = projectRepository.findProjectsByUser_UserId(userId);
+
+            for (Project p : projectsByUser_userId) {
+                GetProjectResponse getProjectResponse = new GetProjectResponse(p.getProjectId(), p.getTitle(), p.getStartDate(), p.getEndDate(), p.getIsProceed(), p.getClassification(), p.getIntroduction());
+                getProjectResponseList.add(getProjectResponse);
+            }
+
+            return getProjectResponseList;
+
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    @Override
+    public void deleteProject(Long projectId) throws BaseException {
+        try {
+            Project project = getProjectById(projectId).get();
+            project.setStatus(0);
+            projectRepository.save(project);
+
+        } catch (Exception exception) {
+        exception.printStackTrace();
+        throw new BaseException(DATABASE_ERROR);
+    }
     }
 }
