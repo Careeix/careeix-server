@@ -226,18 +226,18 @@ public class ProjectController {
         }
 
     }
-
-    @ResponseBody
-    @PatchMapping("/{project_id}/edit")
-    public ResponseEntity<BaseResponse> editProject(@PathVariable("project_id") Long projectId){
-        try {
-
-        } catch (BaseException exception) {
-            exception.printStackTrace();
-            return new ResponseEntity<>(new BaseResponse(exception.getStatus()),exception.getStatus().getHttpStatus());
-        }
-
-    }
+//
+//    @ResponseBody
+//    @PatchMapping("/{project_id}/edit")
+//    public ResponseEntity<BaseResponse> editProject(@PathVariable("project_id") Long projectId){
+//        try {
+//
+//        } catch (BaseException exception) {
+//            exception.printStackTrace();
+//            return new ResponseEntity<>(new BaseResponse(exception.getStatus()),exception.getStatus().getHttpStatus());
+//        }
+//
+//    }
 
 
 
