@@ -34,6 +34,7 @@ import javax.validation.Valid;
 import java.util.*;
 
 import static com.example.careeix.utils.ValidationRegex.isRegexNickname;
+import static com.example.careeix.utils.ValidationRegex.isRegexNicknameNum;
 
 
 @RestController
@@ -91,9 +92,9 @@ public class UserController {
             @ApiResponse(code = 200, message = "200 response", response = LoginResponse.class),
             @ApiResponse(code = 400 , message = "해당 아이디를 찾을 수 없습니다.(U1003)")
     })
-    public ApplicationResponse<LoginResponse> getUserProfile(@PathVariable long userId) {
+    public ApplicationResponse<InfoResponse> getUserProfile(@PathVariable long userId) {
         User user = userService.getUserByUserId(userId);
-        return getLoginResponseResponseEntity(user);
+        return getInfoResponseResponseEntity(user);
     }
 
 
@@ -104,7 +105,8 @@ public class UserController {
      * @return ResponseEntity<String>
      */
     @ApiOperation(value = "사용자 프로필 수정  - jwt 0", notes = "사용자 프로필을 수정합니다. \t\n 이미지파일: multipartfile 타입 이용, null 허용" +
-            "\t\n 저장정보 s3 주소를 풀로 저장하고 있기때문에 불러오고 저장할때 추가로 작업하실건 없습니다.", produces = "multipart/form-data")
+            "\t\n 저장정보 s3 주소를 풀로 저장하고 있기때문에 불러오고 저장할때 추가로 작업하실건 없습니다." +
+            "\t\n file : 이미지 파일(유저프로필이미지), userNickname : 유저 닉네임", produces = "multipart/form-data")
     @ApiResponses(value = {
             @ApiResponse(code = 400 , message = "유효하지 않은 닉네임 입니다.(U1007) \t\n JWT 토큰이 비어있습니다.(J2001)"),
             @ApiResponse(code = 403 , message = "ACCESS-TOKEN이 맞지 않습니다.(J2002)"),
@@ -114,6 +116,9 @@ public class UserController {
     public ApplicationResponse<MessageResponse> updateUserProfile(@RequestParam String userNickname,
                                                     @RequestParam(required = false) MultipartFile file) {
         if (!isRegexNickname(userNickname)) {
+            throw new UserNicknameValidException();
+        }
+        if (isRegexNicknameNum(userNickname)) {
             throw new UserNicknameValidException();
         }
         long userId = jwtService.getUserId();
@@ -134,7 +139,11 @@ public class UserController {
     @ApiOperation(value = "사용자 정보 수정  - jwt 0", notes = "사용자 정보를 수정합니다. 사용자 정보 수정 페이지입니다. \t\n jwt로 사용자 판별하고 " +
             "사용자의 reqeust정보들을 고칩니다. " +
             "\t\n requestBody 소개글(userIntro)null 허용, 나머진 필수값(세부직무 1~3개, 년차(0~3)), 중복된 세부 직무 여부 체크"+
-            "\t\n 닉네임, 사진 수정: 프로필 수정 api.")
+            "\t\n 닉네임, 사진 수정: 프로필 수정 api." +
+            "\t\n userDetailJobs : [상세직무 리스트]" +"\n" +
+            "       userIntro : 유저 소개글 \n" +
+            "        userJob : 유저 직무 \n" +
+            "           userWork : 유저 년차 int(0,1,2,3))")
     @ApiResponses(value = {
             @ApiResponse(code = 400 , message = "JWT 토큰이 비어있습니다.(J2001)"),
             @ApiResponse(code = 403 , message = "ACCESS-TOKEN이 맞지 않습니다.(J2002)"),
@@ -275,6 +284,10 @@ public class UserController {
             throw new UserNicknameValidException();
         }
 
+        if (isRegexNicknameNum(kakaoLoginRequest.getNickname())) {
+            throw new UserNicknameValidException();
+        }
+
         if (user.getUserJob() != null) {
             throw new UserDuplicateException();
         }
@@ -327,6 +340,22 @@ public class UserController {
                 .userNickname(user.getUserNickName())
                 .userJob(user.getUserJob())
                 .jwt(jwt)
+                .message("정보를 불러오는데 성공하였습니다.")
+                .build());
+    }
+
+    private ApplicationResponse<InfoResponse> getInfoResponseResponseEntity(User user) {
+        List<String> userJobList = userJobService.getUserJobName(user.getUserId());
+        return ApplicationResponse.ok(InfoResponse.builder()
+                .userId(user.getUserId())
+                .userWork(user.getUserWork())
+                .userIntro(user.getIntoContent())
+                .userProfileImg(user.getUserProfileImg())
+                .userProfileColor(user.getUserProfileColor())
+                .userSocialProvider(user.getUserSocialProvider())
+                .userDetailJobs(userJobList)
+                .userNickname(user.getUserNickName())
+                .userJob(user.getUserJob())
                 .message("정보를 불러오는데 성공하였습니다.")
                 .build());
     }
