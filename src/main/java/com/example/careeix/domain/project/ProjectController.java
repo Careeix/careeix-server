@@ -284,7 +284,9 @@ public class ProjectController {
     "해당 프로젝트를 작성한 user의 JWT를 필수로 입력해야합니다.")
     @ApiResponses({
             @ApiResponse(code = 400, message = "2002 : 유효하지 않은 JWT입니다.\n" +
-                    "2003 : 권한이 없는 유저의 접근입니다."),
+                    "2003 : 권한이 없는 유저의 접근입니다.\n" +
+                    "2031 : 존재하지 않는 프로젝트 ID입니다. 프로젝트 ID를 다시 확인해주세요\n" +
+                    "2032 : 이미 삭제된 프로젝트 ID입니다. 프로젝트 ID를 다시 확인해주세요"),
             @ApiResponse(code = 403, message = "J2002 : ACCESS-TOKEN이 맞지 않습니다."),
             @ApiResponse(code = 404, message = "J2001 : 헤더의 JWT 토큰이 비어있습니다.", response = ApiErrorResponse.class)
     })
@@ -298,9 +300,14 @@ public class ProjectController {
                 return new ResponseEntity(new BaseResponse(INVALID_JWT),INVALID_JWT.getHttpStatus());
             }
 
+            // 프로젝트가 없는 경우
+            Optional<Project> project = projectService.getProjectById(projectId);
+            if (project.isEmpty()) {
+                return new ResponseEntity(new BaseResponse(INVALID_PROJECT),INVALID_PROJECT.getHttpStatus());
+            }
+
             //유저 프로젝트 권한 확인
-            Long projectUserId = projectService.getProjectById(projectId).get().getUser().getUserId();
-            if (projectUserId != userId) {
+            if (project.get().getUser().getUserId() != userId) {
                 return new ResponseEntity(new BaseResponse(INVALID_USER_JWT),INVALID_USER_JWT.getHttpStatus());
             }
 

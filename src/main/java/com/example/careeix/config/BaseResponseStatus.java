@@ -45,6 +45,7 @@ public enum BaseResponseStatus {
     EMPTY_PNOTE_CONTENT(false, "2028", "프로젝트 메모 본문을 입력해주세요.", HttpStatus.BAD_REQUEST),
     INVALID_ISPROCEED(false, "2029", "프로젝트 진행 여부 입력을 확인해주세요.(0 : 진행 종료, 1 : 진행 중)", HttpStatus.BAD_REQUEST),
 
+
     PROJECT_STATUS_ERROR(false, "2030", "삭제된 프로젝트입니다. 프로젝트 ID를 다시 확인해주세요", HttpStatus.BAD_REQUEST),
     INVALID_PROJECT(false, "2031", "존재하지 않는 프로젝트 ID입니다. 프로젝트 ID를 다시 확인해주세요", HttpStatus.BAD_REQUEST),
     DELETED_PROJECT(false, "2032", "이미 삭제된 프로젝트 ID입니다. 프로젝트 ID를 다시 확인해주세요", HttpStatus.BAD_REQUEST),
