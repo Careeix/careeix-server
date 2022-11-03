@@ -238,9 +238,9 @@ public class UserController {
      * [POST] api/v1/users/check-login-apple
      * @return ResponseEntity
     \     */
-    @ApiOperation(value = "애플 로그인", notes = "userId 0 or jwt null : 추가정보 받는 kakao-login api," +
+    @ApiOperation(value = "애플 로그인 - 첫번째 호출", notes = "userId 0 or jwt null : 추가정보 받는 apple-login api," +
             "\t\n requestBody : 필수, 토큰에 따른 에러처리, responseBody : 사용자 정보 조회 note 참조" +
-            "\t\n 카카오 로그인 response에 따른 에러처리")
+            "\t\n 애플 로그인 response에 따른 에러처리")
     @PostMapping("/check-login-apple")
     @ApiResponses(value = {
             @ApiResponse(code = 405 , message = "애플 로그인에 실패했습니다.(A2001)"),
