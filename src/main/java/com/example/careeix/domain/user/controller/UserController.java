@@ -6,7 +6,9 @@ import com.example.careeix.domain.color.service.ColorService;
 import com.example.careeix.domain.user.dto.*;
 import com.example.careeix.domain.user.entity.User;
 import com.example.careeix.domain.user.exception.*;
+import com.example.careeix.domain.user.exception.oauth2.apple.AppleFailException;
 import com.example.careeix.domain.user.exception.oauth2.kakao.*;
+import com.example.careeix.domain.user.service.OAuth2UserServiceApple;
 import com.example.careeix.domain.user.service.OAuth2UserServiceKakao;
 import com.example.careeix.domain.user.service.UserJobService;
 import com.example.careeix.domain.user.service.UserService;
@@ -49,6 +51,9 @@ public class UserController {
     private final UserJobService userJobService;
     private final JwtService jwtService;
     private final OAuth2UserServiceKakao oAuth2UserServiceKakao;
+
+    private final OAuth2UserServiceApple oAuth2UserServiceApple;
+
 
 //
 //    /**
@@ -228,6 +233,84 @@ public class UserController {
     /**
      * OAuth2
      */
+    /**
+     * 애플 로그인 API
+     * [POST] api/v1/users/check-login-apple
+     * @return ResponseEntity
+    \     */
+    @ApiOperation(value = "애플 로그인", notes = "userId 0 or jwt null : 추가정보 받는 kakao-login api," +
+            "\t\n requestBody : 필수, 토큰에 따른 에러처리, responseBody : 사용자 정보 조회 note 참조" +
+            "\t\n 카카오 로그인 response에 따른 에러처리")
+    @PostMapping("/check-login-apple")
+    @ApiResponses(value = {
+            @ApiResponse(code = 405 , message = "애플 로그인에 실패했습니다.(A2001)"),
+            @ApiResponse(code = 500 , message = "유효한 RSA값을 찾지 못했습니다.(A2002)", response = ApiErrorResponse.class),
+    })
+    public ApplicationResponse<LoginResponse> createAppleUser(@Valid @RequestBody AppleAccessRequest appleAccessRequest) {
+        User user = oAuth2UserServiceApple.validateAppleAccessToken(appleAccessRequest.getIdentityToken());
+        if (user.getUserJob() == null) {
+            return ApplicationResponse.ok(LoginResponse.builder()
+                    .message("회원가입을 진행해주세요, apple-login api에서 추가정보를 입력해주세요")
+                    .build());
+        }
+        return getLoginResponseResponseEntity(user);
+    }
+
+    /**
+     * 애플 로그인 API
+     * [POST] api/v1/users/apple-login
+     * @param appleLoginRequest
+     * @return ResponseEntity
+    \     */
+    @ApiOperation(value = "애플 로그인 - 추가정보 입력 후 호출", notes = "회원가입 후 로그인 - 추가 정보 받고 호출하는 api, 연차 0,1,2,3 으로 전달해주세요" +
+            "\t\n 위와 같은 애플 api를 이용하고 있는데 위에서 검증을 하고 넘기기 때문에 그부분에 대한 에러코드는 생략했습니다." +
+            "\t\n requestBody : 모두 필수값, 조건 : [세부직무 1~3개, 년차(0~3)](조건x : apiError), responseBody : 사용자 정보 조회 note 참조" +
+            "\t\n 닉네임 패턴, 닉네임 존재 여부, 가입 여부, 중복된 세부 직무 여부")
+    @PostMapping("/apple-login")
+    @ApiResponses(value = {
+            @ApiResponse(code = 400 , message = "유효하지 않은 닉네임 입니다.(U1007)"),
+            @ApiResponse(code = 409, message = "중복된 닉네임 입니다.(U1001) \t\n 해당 유저는 이미 가입한 유저입니다.(U1004) \t\n 중복된 세부직무가 있습니다.(U1005)", response = ApiErrorResponse.class)
+    })
+    public ApplicationResponse<LoginResponse> loginKakaoUser(@Valid @RequestBody AppleLoginRequest appleLoginRequest) {
+        User user = oAuth2UserServiceApple.validateAppleAccessToken(appleLoginRequest.getIdentityToken());
+        if(user.getSocialId() == null){
+            throw new AppleFailException();
+        }
+
+        if (!isRegexNickname(appleLoginRequest.getNickname())) {
+            throw new UserNicknameValidException();
+        }
+
+        if (isRegexNicknameNum(appleLoginRequest.getNickname())) {
+            throw new UserNicknameValidException();
+        }
+
+        if (user.getUserJob() != null) {
+            throw new UserDuplicateException();
+        }
+
+        this.checkDuplicateJob(appleLoginRequest.getUserDetailJob());
+
+        if(!Objects.equals(user.getUserNickName(), appleLoginRequest.getNickname())){
+            userService.userNicknameDuplicateCheck(appleLoginRequest.getNickname());
+
+        }
+
+        // 회원가입 한 적 없는 경우 - 데이터 저장
+        try {
+            User finalUser = userService.insertUserApple(appleLoginRequest, user);
+            userJobService.createUserJob(appleLoginRequest.getUserDetailJob(), finalUser);
+            User u = colorService.getColorName(finalUser);
+            return getLoginResponseResponseEntity(u);
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+
+        // 로그인 정보 불러오기
+    }
+
 
     /**
      * 카카오 로그인 API

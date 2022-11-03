@@ -20,8 +20,8 @@ import static java.util.Objects.requireNonNull;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
     private static final String LOG_FORMAT ="Class : {}, CODE : {}, Message : {}";
-    private static final String INTERNAL_SERVER_ERROR_CODE = "S0001";
-    private static final String BAD_REQUEST_ERROR_CODE = "S0002";
+    private static final String INTERNAL_SERVER_ERROR_CODE = "S4001";
+    private static final String BAD_REQUEST_ERROR_CODE = "S2001";
     ;
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -29,7 +29,7 @@ public class GlobalExceptionHandler {
         MethodArgumentNotValidException e
     ){
         String errorCode = requireNonNull(e.getFieldError()).getDefaultMessage();
-        ApiErrorResponse exceptionResponse = new ApiErrorResponse(BAD_REQUEST_ERROR_CODE, errorCode);
+        ApiErrorResponse exceptionResponse = new ApiErrorResponse(BAD_REQUEST_ERROR_CODE, "유효하지 않는 값입니다.");
         log.warn(LOG_FORMAT, e.getClass().getSimpleName(), errorCode, "@Valid");
 
         return ResponseEntity
