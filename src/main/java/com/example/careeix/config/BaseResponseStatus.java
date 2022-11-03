@@ -26,13 +26,14 @@ public enum BaseResponseStatus {
 
     // users
     USERS_EMPTY_USER_ID(false, "2010", "유저 아이디 값을 확인해주세요.", HttpStatus.BAD_REQUEST),
+    USER_PARAM_ERROR(false, "2011", "파라미터 값(유저ID)을 입력해주세요", HttpStatus.BAD_REQUEST),
 
     // [POST] /users
     POST_USERS_EMPTY_EMAIL(false, "2015", "이메일을 입력해주세요.", HttpStatus.BAD_REQUEST),
     POST_USERS_INVALID_EMAIL(false, "2016", "이메일 형식을 확인해주세요.", HttpStatus.BAD_REQUEST),
     POST_USERS_EXISTS_EMAIL(false,"2017","중복된 이메일입니다.", HttpStatus.BAD_REQUEST),
 
-    // PROJECT
+    // PROJECT(등록)
     EMPTY_TITLE(false, "2020", "프로젝트 제목을 입력해주세요.", HttpStatus.BAD_REQUEST),
     EMPTY_START_DATE(false, "2021", "프로젝트 시작 날짜를 입력해주세요.", HttpStatus.BAD_REQUEST),
     EMPTY_END_DATE(false, "2022", "프로젝트 종료 날짜를 입력해주세요.", HttpStatus.BAD_REQUEST),
@@ -43,6 +44,10 @@ public enum BaseResponseStatus {
     EMPTY_PDETAIL_CONTENT(false, "2027", "프로젝트 내용 본문을 입력해주세요.", HttpStatus.BAD_REQUEST),
     EMPTY_PNOTE_CONTENT(false, "2028", "프로젝트 메모 본문을 입력해주세요.", HttpStatus.BAD_REQUEST),
     INVALID_ISPROCEED(false, "2029", "프로젝트 진행 여부 입력을 확인해주세요.(0 : 진행 종료, 1 : 진행 중)", HttpStatus.BAD_REQUEST),
+
+    PROJECT_STATUS_ERROR(false, "2030", "삭제된 프로젝트입니다. 프로젝트 ID를 다시 확인해주세요", HttpStatus.BAD_REQUEST),
+    INVALID_PROJECT(false, "2031", "존재하지 않는 프로젝트 ID입니다. 프로젝트 ID를 다시 확인해주세요", HttpStatus.BAD_REQUEST),
+    DELETED_PROJECT(false, "2032", "이미 삭제된 프로젝트 ID입니다. 프로젝트 ID를 다시 확인해주세요", HttpStatus.BAD_REQUEST),
 
     /**
      * 3000 : Response 오류

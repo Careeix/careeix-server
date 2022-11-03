@@ -20,12 +20,17 @@ public interface ProjectService {
 
     void createProjectNote(@Valid PostProjectNote projectNote, ProjectDetail projectDetail) throws BaseException;
 
-    Optional<Project> getProjectById(long projectId);
+    GetSelectProjectResponse getProjectByIdResponse(long projectId) throws BaseException;
     String getProjectDetail(long projectId);
     List<String> getProjectNote(long projectId);
 
     List<GetProjectResponse> getProjectsByUserId(long userId) throws BaseException;
 
     void deleteProject(Long projectId) throws BaseException;
+    void deleteProjectDetails(Long projectId) throws BaseException;
+    void deleteProjectNotes(Long projectDetailId) throws BaseException;
+
+    Optional<Project> getProjectById (long projectId) throws BaseException;
+
 
 }

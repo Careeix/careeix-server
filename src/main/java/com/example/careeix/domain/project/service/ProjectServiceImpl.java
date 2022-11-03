@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.example.careeix.config.BaseResponseStatus.DATABASE_ERROR;
+import static com.example.careeix.config.BaseResponseStatus.PROJECT_STATUS_ERROR;
 
 @Service
 @RequiredArgsConstructor
@@ -72,8 +73,29 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public Optional<Project> getProjectById(long projectId) {
-        return projectRepository.findById(projectId);
+    public GetSelectProjectResponse getProjectByIdResponse(long projectId) throws BaseException {
+        try {
+            Project p = projectRepository.findById(projectId).get();
+
+            List<String> pdTitleList = new ArrayList<>();
+            List<ProjectDetail> pd = projectDetailRepository.findAllByProject_ProjectId(p.getProjectId());
+
+            for (ProjectDetail x : pd) {
+                pdTitleList.add(x.getProjectDetailTitle());
+            }
+
+            if (p.getStatus() == 1) {
+//                return new GetProjectResponse(p.getProjectId(), p.getTitle(), p.getStartDate(), p.getEndDate(), p.getIsProceed(), p.getClassification(), p.getIntroduction());
+                return new GetSelectProjectResponse(p.getProjectId(), p.getTitle(), p.getStartDate(), p.getEndDate(), p.getIsProceed(), p.getClassification(), pdTitleList);
+            } else {
+                throw new BaseException(PROJECT_STATUS_ERROR);
+            }
+
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            throw new BaseException(DATABASE_ERROR);
+        }
+
     }
 
     @Override
@@ -91,11 +113,17 @@ public class ProjectServiceImpl implements ProjectService {
     public List<GetProjectResponse> getProjectsByUserId(long userId) throws BaseException {
         try {
             List<GetProjectResponse> getProjectResponseList = new ArrayList<>();
-            List<Project> projectsByUser_userId = projectRepository.findProjectsByUser_UserId(userId);
+//            List<Project> projectsByUser_userId = projectRepository.findProjectsByUser_UserId(userId);
+            List<Project> projectsByUser_userId = projectRepository.findAllByUser_UserId(userId);
 
             for (Project p : projectsByUser_userId) {
-                GetProjectResponse getProjectResponse = new GetProjectResponse(p.getProjectId(), p.getTitle(), p.getStartDate(), p.getEndDate(), p.getIsProceed(), p.getClassification(), p.getIntroduction());
-                getProjectResponseList.add(getProjectResponse);
+                if (p.getStatus() == 1) {
+                    GetProjectResponse getProjectResponse = new GetProjectResponse(p.getProjectId(), p.getTitle(), p.getStartDate(), p.getEndDate(), p.getIsProceed(), p.getClassification(), p.getIntroduction());
+                    getProjectResponseList.add(getProjectResponse);
+                } else {
+                    continue;
+                }
+
             }
 
             return getProjectResponseList;
@@ -109,13 +137,65 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public void deleteProject(Long projectId) throws BaseException {
         try {
-            Project project = getProjectById(projectId).get();
+//            Project project = getProjectById(projectId).get();
+            Project project = projectRepository.findById(projectId).get();
+
+            for(ProjectDetail pd : project.getProjectDetails()){
+                deleteProjectNotes(pd.getProjectDetailId());
+            }
+
+            deleteProjectDetails(projectId);
+
             project.setStatus(0);
             projectRepository.save(project);
+
 
         } catch (Exception exception) {
         exception.printStackTrace();
         throw new BaseException(DATABASE_ERROR);
+        }
     }
+
+    @Override
+    public void deleteProjectDetails(Long projectId) throws BaseException {
+        try {
+            List<ProjectDetail> projectDetailList = projectDetailRepository.findAllByProject_ProjectId(projectId);
+
+            for (ProjectDetail pd : projectDetailList) {
+                pd.setStatus(0);
+                projectDetailRepository.save(pd);
+            }
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            throw new BaseException(DATABASE_ERROR);
+        }
     }
+
+    @Override
+    public void deleteProjectNotes(Long projectDetailId) throws BaseException {
+        try {
+            List<ProjectNote> projectNoteList = projectNoteRepository.findAllByProjectDetail_ProjectDetailId(projectDetailId);
+
+            for (ProjectNote pn : projectNoteList) {
+                pn.setStatus(0);
+                projectNoteRepository.save(pn);
+            }
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+
+    @Override
+    public Optional<Project> getProjectById(long projectId) throws BaseException {
+        try {
+            return projectRepository.findById(projectId);
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+
 }

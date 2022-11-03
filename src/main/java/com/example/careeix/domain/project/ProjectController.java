@@ -7,6 +7,7 @@ import com.example.careeix.domain.project.dto.*;
 import com.example.careeix.domain.project.entity.Project;
 import com.example.careeix.domain.project.entity.ProjectDetail;
 import com.example.careeix.domain.project.service.ProjectService;
+import com.example.careeix.domain.user.service.UserService;
 import com.example.careeix.utils.dto.ApplicationResponse;
 import com.example.careeix.utils.exception.ApiErrorResponse;
 import com.example.careeix.utils.jwt.exception.ExpireAccessException;
@@ -40,6 +41,7 @@ public class ProjectController {
 
     private final JwtService jwtService;
     private final ProjectService projectService;
+    private final UserService userService;
 
     //날짜
     public int compareDates(String start, String end) {
@@ -65,7 +67,7 @@ public class ProjectController {
      *
      * @return ResponseEntity<BaseResponse>
      */
-    @ApiOperation(value = "프로젝트 등록", notes = "User JWT값은 (사용자 정보 조회 : /api/v1/users/profile/{userId}) 참고해주시면 감사하겠습니다. \n" +
+    @ApiOperation(value = "프로젝트 등록", notes =
             "end_date을 제외한 모든 값은 Mandatory입니다. \n" +
             "\n" +
             "단, is_proceed의 값이 (0 : 진행 종료)일 경우, end_date의 값 또한 Mandatory입니다. \n" +
@@ -73,8 +75,20 @@ public class ProjectController {
             "\n" +
             "is_proceed의 default 값은 (0 : 진행 종료)입니다.")
     @ApiResponses({
-            @ApiResponse(code = 403, message = "헤더의 JWT 토큰이 맞지 않거나 만료되었습니다."),
-            @ApiResponse(code = 404, message = "헤더의 JWT 토큰이 비어있습니다.", response = ApiErrorResponse.class)
+            @ApiResponse(code = 400, message = "2002 : 유효하지 않은 JWT입니다.\n" +
+                    "2020 : 프로젝트 제목을 입력해주세요. \n" +
+                    "2021 : 프로젝트 시작 날짜를 입력해주세요. \n" +
+                    "2022 : 프로젝트 종료 날짜를 입력해주세요. \n" +
+                    "2023 : 프로젝트 시작-종료 날짜를 순서에 맞게 입력해주세요. \n" +
+                    "2024 : 프로젝트 구분을 입력해주세요.\n" +
+                    "2025 : 프로젝트 소개를 입력해주세요.\n" +
+                    "2026 : 프로젝트 내용 제목을 입력해주세요.\n" +
+                    "2027 : 프로젝트 내용 본문을 입력해주세요.\n" +
+                    "2028 : 프로젝트 메모 본문을 입력해주세요.\n" +
+                    "2029 : 프로젝트 진행 여부 입력을 확인해주세요.(0 : 진행 종료, 1 : 진행 중)\n"
+            ),
+            @ApiResponse(code = 403, message = "J2002 : ACCESS-TOKEN이 맞지 않습니다."),
+            @ApiResponse(code = 404, message = "J2001 : 헤더의 JWT 토큰이 비어있습니다.", response = ApiErrorResponse.class)
     })
     @ResponseBody
     @PostMapping("")
@@ -173,22 +187,34 @@ public class ProjectController {
     }
 
     /**
-     * 프로젝트 조회 API
-     * [GET] /
+     * 프로젝트 조회(유저ID별) API
+     * [GET] /by-user?id=
      *
      * @return ResponseEntity<BaseResponse>
      */
+    @ApiOperation(value = "프로젝트 조회(유저 ID별)", notes = "홈 > 카드 프로필 클릭 or 커리어 탭 랜딩에서 확인 가능한 프로젝트 리스트 입니다.\n" +
+    "파라미터로 user의 id를 받으며, 필수로 입력해야합니다. (예. ~project/by-user?id=1)")
+    @ApiResponses({
+            @ApiResponse(code = 400, message = "2011 : 파라미터 값(유저ID)을 입력해주세요\n" +
+                    "U1003 : 해당 아이디를 찾을 수 없습니다.",response = ApiErrorResponse.class)
+    })
     @ResponseBody
-    @GetMapping("")
-    public ResponseEntity<BaseResponse> getProjectsByUserId(){
+    @GetMapping("/by-user")
+    public ResponseEntity<BaseResponse> getProjectsByUserId(@RequestParam(required = false) Long id){
         try {
-            Long userId = jwtService.getUserId();
+//            Long userId = jwtService.getUserId();
+//            // Validation
+//            if (userId == null) {
+//                return new ResponseEntity(new BaseResponse(INVALID_JWT),INVALID_JWT.getHttpStatus());
+//            }
 
-            if (userId == null) {
-                return new ResponseEntity(new BaseResponse(INVALID_JWT),INVALID_JWT.getHttpStatus());
+
+            // 유저 유무 확인
+            if (id == null || userService.getUserByUserId(id) == null) {
+                return new ResponseEntity(new BaseResponse(USER_PARAM_ERROR),USER_PARAM_ERROR.getHttpStatus());
             }
 
-            List<GetProjectResponse> projectsByUserId = projectService.getProjectsByUserId(userId);
+            List<GetProjectResponse> projectsByUserId = projectService.getProjectsByUserId(id);
             return new ResponseEntity<>(new BaseResponse(projectsByUserId), SUCCESS.getHttpStatus());
 
 
@@ -199,6 +225,69 @@ public class ProjectController {
 
     }
 
+
+    /**
+     * 프로젝트 조회(프로젝트Id별) API
+     * [GET] /:project_id
+     *
+     * @return ResponseEntity<BaseResponse>
+     */
+    @ApiOperation(value = "프로젝트 조회(프로젝트 ID별)", notes = "프로젝트 선택시 확인 할 수 있는 프로젝트 정보와 목차(ProjectDeatil)리스트 입니다.")
+    @ApiResponses({
+            @ApiResponse(code = 400, message = "2031 : 존재하지 않는 프로젝트 ID입니다. 프로젝트 ID를 다시 확인해주세요\n" +
+                    "2032 : 이미 삭제된 프로젝트 ID입니다. 프로젝트 ID를 다시 확인해주세요",response = ApiErrorResponse.class)
+    })
+    @ResponseBody
+    @GetMapping("/{project_id}")
+    public ResponseEntity<BaseResponse> getProjectByProjectId(@PathVariable("project_id") Long projectId){
+        try {
+//            Long userId = jwtService.getUserId();
+//            //Validation
+//            if (userId == null) {
+//                return new ResponseEntity(new BaseResponse(INVALID_JWT),INVALID_JWT.getHttpStatus());
+//            }
+
+            // 프로젝트가 없는 경우
+            Optional<Project> project = projectService.getProjectById(projectId);
+            if (project.isEmpty()) {
+                return new ResponseEntity(new BaseResponse(INVALID_PROJECT),INVALID_PROJECT.getHttpStatus());
+            }
+            // 유저ID(by jwt) != 프로젝트의 유저ID
+//            if (!project.get().getUser().getUserId().equals(userId)) {
+//                return new ResponseEntity(new BaseResponse(INVALID_USER_JWT),INVALID_USER_JWT.getHttpStatus());
+//            }
+            // 삭제된 프로젝트 ID일 경우
+            if (project.get().getStatus() == 0) {
+                return new ResponseEntity(new BaseResponse(DELETED_PROJECT),DELETED_PROJECT.getHttpStatus());
+            }
+
+            GetSelectProjectResponse projectResponse = projectService.getProjectByIdResponse(projectId);
+
+            return new ResponseEntity<>(new BaseResponse(projectResponse), SUCCESS.getHttpStatus());
+
+
+        } catch (BaseException exception) {
+            exception.printStackTrace();
+            return new ResponseEntity<>(new BaseResponse(exception.getStatus()),exception.getStatus().getHttpStatus());
+        }
+
+    }
+
+
+    /**
+     * 프로젝트 삭제 API
+     * [PATCH] /:project_id
+     *
+     * @return ResponseEntity<BaseResponse>
+     */
+    @ApiOperation(value = "프로젝트 삭제", notes = "project_id에 해당하는 프로젝트, 프로젝트 목차, 프로젝트 노트 들의 status를 모두 0으로 바꿉니다.\n" +
+    "해당 프로젝트를 작성한 user의 JWT를 필수로 입력해야합니다.")
+    @ApiResponses({
+            @ApiResponse(code = 400, message = "2002 : 유효하지 않은 JWT입니다.\n" +
+                    "2003 : 권한이 없는 유저의 접근입니다."),
+            @ApiResponse(code = 403, message = "J2002 : ACCESS-TOKEN이 맞지 않습니다."),
+            @ApiResponse(code = 404, message = "J2001 : 헤더의 JWT 토큰이 비어있습니다.", response = ApiErrorResponse.class)
+    })
     @ResponseBody
     @PatchMapping("/{project_id}")
     public ResponseEntity<BaseResponse> deleteProject(@PathVariable("project_id") Long projectId){
@@ -210,8 +299,8 @@ public class ProjectController {
             }
 
             //유저 프로젝트 권한 확인
-            Project project = projectService.getProjectById(projectId).get();
-            if (project.getUser().getUserId() != userId) {
+            Long projectUserId = projectService.getProjectById(projectId).get().getUser().getUserId();
+            if (projectUserId != userId) {
                 return new ResponseEntity(new BaseResponse(INVALID_USER_JWT),INVALID_USER_JWT.getHttpStatus());
             }
 
@@ -226,7 +315,14 @@ public class ProjectController {
         }
 
     }
-//
+
+
+    /**
+     * 프로젝트 수정 API
+     * [PATCH] /:project_id/edit
+     *
+     * @return ResponseEntity<BaseResponse>
+     */
 //    @ResponseBody
 //    @PatchMapping("/{project_id}/edit")
 //    public ResponseEntity<BaseResponse> editProject(@PathVariable("project_id") Long projectId){

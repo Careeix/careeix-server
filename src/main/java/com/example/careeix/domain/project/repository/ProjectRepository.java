@@ -11,10 +11,12 @@ import java.util.Optional;
 
 public interface ProjectRepository  extends JpaRepository<Project, Long> {
 
-    //    List<Project> findAllByUserUserId(Long userId);
+
+
+//    @Query("select p from Project p where p.user.userId = ?1 and p.status=1 order by p.startDate DESC")
+//    List<Project> findProjectsByUser_UserId(Long userId);
 
     @Query("select p from Project p where p.user.userId = ?1 and p.status=1 order by p.startDate DESC")
-    List<Project> findProjectsByUser_UserId(Long userId);
-
+    List<Project> findAllByUser_UserId(Long userId);
 
 }
