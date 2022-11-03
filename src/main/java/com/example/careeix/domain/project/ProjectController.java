@@ -193,7 +193,8 @@ public class ProjectController {
      * @return ResponseEntity<BaseResponse>
      */
     @ApiOperation(value = "프로젝트 조회(유저 ID별)", notes = "홈 > 카드 프로필 클릭 or 커리어 탭 랜딩에서 확인 가능한 프로젝트 리스트 입니다.\n" +
-    "파라미터로 user의 id를 받으며, 필수로 입력해야합니다. (예. ~project/by-user?id=1)")
+    "파라미터로 user의 id를 받으며, 필수로 입력해야합니다. (예. ~project/by-user?id=1)\n" +
+    "순서는 start_date기준 내림차순입니다.(최근에 시작한 프로젝트일 수록 위)")
     @ApiResponses({
             @ApiResponse(code = 400, message = "2011 : 파라미터 값(유저ID)을 입력해주세요\n" +
                     "U1003 : 해당 아이디를 찾을 수 없습니다.",response = ApiErrorResponse.class)
