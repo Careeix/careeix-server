@@ -12,12 +12,11 @@ import java.util.Optional;
 
 public interface ProjectService {
 
-    Project createProject(@Valid PostProjectRequest postProjectRequest, Long userId) throws BaseException;
+    PostProjectResponse createProjectPackage(@Valid PostProjectRequest postProjectRequest, Long userId) throws BaseException;
 
+
+    Project createProject(@Valid Project project) throws BaseException;
     ProjectDetail createProjectDetail(@Valid PostProjectDetail projectDetail, Project project) throws BaseException;
-
-//    void createProjectNotes(@Valid List<PostProjectNote> projectNotes, ProjectDetail projectDetail);
-
     void createProjectNote(@Valid PostProjectNote projectNote, ProjectDetail projectDetail) throws BaseException;
 
     GetSelectProjectResponse getProjectByIdResponse(long projectId) throws BaseException;
@@ -31,6 +30,9 @@ public interface ProjectService {
     void deleteProjectNotes(Long projectDetailId) throws BaseException;
 
     Optional<Project> getProjectById (long projectId) throws BaseException;
+
+
+    Project insertPostProjectReq(@Valid PostProjectRequest postProjectRequest, Project project) throws BaseException;
 
 
 }

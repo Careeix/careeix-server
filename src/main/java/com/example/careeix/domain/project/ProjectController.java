@@ -23,6 +23,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -75,7 +76,8 @@ public class ProjectController {
             "\n" +
             "is_proceed의 default 값은 (0 : 진행 종료)입니다.")
     @ApiResponses({
-            @ApiResponse(code = 400, message = "2002 : 유효하지 않은 JWT입니다.\n" +
+            @ApiResponse(code = 400, message =
+                    "2002 : 유효하지 않은 JWT입니다.\n" +
                     "2020 : 프로젝트 제목을 입력해주세요. \n" +
                     "2021 : 프로젝트 시작 날짜를 입력해주세요. \n" +
                     "2022 : 프로젝트 종료 날짜를 입력해주세요. \n" +
@@ -137,47 +139,15 @@ public class ProjectController {
                 postProjectRequest.setEnd_date(null);
             }
 
+            //TODO
+            // projectDetails 없을 때(projectDetail로 잘못 적었었음),
+            // 프로젝트는 생성되고 런타임error 생기는 오류.
+            // 목차나 노트에서 오류가 날 경우 프로젝트도 저장 안되여야함.
 
-            Project projectSaved = projectService.createProject(postProjectRequest, userId);
-            Long projectId = projectSaved.getProjectId();
-
-            List<PostProjectDetail> pdSaved = new ArrayList<>();
-
-            for (PostProjectDetail pd : postProjectRequest.getProjectDetails()) {
-                if (pd.getProject_detail_title() == null) {
-//                    return new BaseResponse<>(EMPTY_PDETAIL_TITLE);
-                    return new ResponseEntity(new BaseResponse(EMPTY_PDETAIL_TITLE),EMPTY_PDETAIL_TITLE.getHttpStatus());
-                }
-                if (pd.getContent() == null) {
-//                    return new BaseResponse<>(EMPTY_PDETAIL_CONTENT);
-                    return new ResponseEntity(new BaseResponse(EMPTY_PDETAIL_CONTENT),EMPTY_PDETAIL_CONTENT.getHttpStatus());
-                }
-
-                ProjectDetail projectDetailSaved = projectService.createProjectDetail(pd, projectSaved);
-
-                for (PostProjectNote pn : pd.getProjectNotes()) {
-                    if (pn.getContent() == null) {
-//                        return new BaseResponse<>(EMPTY_PNOTE_CONTENT);
-                        return new ResponseEntity(new BaseResponse(EMPTY_PNOTE_CONTENT),EMPTY_PNOTE_CONTENT.getHttpStatus());
-                    }
-                    projectService.createProjectNote(pn, projectDetailSaved);
-                }
-                pdSaved.add(pd);
-            }
-
-            PostProjectResponse postProjectResponse = new PostProjectResponse(
-                    projectId,
-                    projectSaved.getTitle(),
-                    projectSaved.getStartDate(),
-                    projectSaved.getEndDate(),
-                    projectSaved.getIsProceed(),
-                    projectSaved.getClassification(),
-                    projectSaved.getIntroduction(),
-                    pdSaved
-            );
+            PostProjectResponse project = projectService.createProjectPackage(postProjectRequest, userId);
 
 //            return new BaseResponse<>(postProjectResponse, SUCCESS_CREATE);
-            return new ResponseEntity<>(new BaseResponse(postProjectResponse), SUCCESS.getHttpStatus());
+            return new ResponseEntity<>(new BaseResponse(project), SUCCESS.getHttpStatus());
 
         } catch (BaseException exception) {
             exception.printStackTrace();
@@ -196,7 +166,8 @@ public class ProjectController {
     "파라미터로 user의 id를 받으며, 필수로 입력해야합니다. (예. ~project/by-user?id=1)\n" +
     "순서는 start_date기준 내림차순입니다.(최근에 시작한 프로젝트일 수록 위)")
     @ApiResponses({
-            @ApiResponse(code = 400, message = "2011 : 파라미터 값(유저ID)을 입력해주세요\n" +
+            @ApiResponse(code = 400, message =
+                    "2011 : 파라미터 값(유저ID)을 입력해주세요\n" +
                     "U1003 : 해당 아이디를 찾을 수 없습니다.",response = ApiErrorResponse.class)
     })
     @ResponseBody
@@ -235,7 +206,8 @@ public class ProjectController {
      */
     @ApiOperation(value = "프로젝트 조회(프로젝트 ID별)", notes = "프로젝트 선택시 확인 할 수 있는 프로젝트 정보와 목차(ProjectDeatil)리스트 입니다.")
     @ApiResponses({
-            @ApiResponse(code = 400, message = "2031 : 존재하지 않는 프로젝트 ID입니다. 프로젝트 ID를 다시 확인해주세요\n" +
+            @ApiResponse(code = 400, message =
+                    "2031 : 존재하지 않는 프로젝트 ID입니다. 프로젝트 ID를 다시 확인해주세요\n" +
                     "2032 : 이미 삭제된 프로젝트 ID입니다. 프로젝트 ID를 다시 확인해주세요",response = ApiErrorResponse.class)
     })
     @ResponseBody
@@ -248,8 +220,8 @@ public class ProjectController {
 //                return new ResponseEntity(new BaseResponse(INVALID_JWT),INVALID_JWT.getHttpStatus());
 //            }
 
-            // 프로젝트가 없는 경우
             Optional<Project> project = projectService.getProjectById(projectId);
+            // 프로젝트가 없는 경우
             if (project.isEmpty()) {
                 return new ResponseEntity(new BaseResponse(INVALID_PROJECT),INVALID_PROJECT.getHttpStatus());
             }
@@ -284,7 +256,8 @@ public class ProjectController {
     @ApiOperation(value = "프로젝트 삭제", notes = "project_id에 해당하는 프로젝트, 프로젝트 목차, 프로젝트 노트 들의 status를 모두 0으로 바꿉니다.\n" +
     "해당 프로젝트를 작성한 user의 JWT를 필수로 입력해야합니다.")
     @ApiResponses({
-            @ApiResponse(code = 400, message = "2002 : 유효하지 않은 JWT입니다.\n" +
+            @ApiResponse(code = 400, message =
+                    "2002 : 유효하지 않은 JWT입니다.\n" +
                     "2003 : 권한이 없는 유저의 접근입니다.\n" +
                     "2031 : 존재하지 않는 프로젝트 ID입니다. 프로젝트 ID를 다시 확인해주세요\n" +
                     "2032 : 이미 삭제된 프로젝트 ID입니다. 프로젝트 ID를 다시 확인해주세요"),
@@ -301,8 +274,8 @@ public class ProjectController {
                 return new ResponseEntity(new BaseResponse(INVALID_JWT),INVALID_JWT.getHttpStatus());
             }
 
-            // 프로젝트가 없는 경우
             Optional<Project> project = projectService.getProjectById(projectId);
+            // 프로젝트가 없는 경우
             if (project.isEmpty()) {
                 return new ResponseEntity(new BaseResponse(INVALID_PROJECT),INVALID_PROJECT.getHttpStatus());
             }
@@ -331,17 +304,104 @@ public class ProjectController {
      *
      * @return ResponseEntity<BaseResponse>
      */
-//    @ResponseBody
-//    @PatchMapping("/{project_id}/edit")
-//    public ResponseEntity<BaseResponse> editProject(@PathVariable("project_id") Long projectId){
-//        try {
-//
-//        } catch (BaseException exception) {
-//            exception.printStackTrace();
-//            return new ResponseEntity<>(new BaseResponse(exception.getStatus()),exception.getStatus().getHttpStatus());
-//        }
-//
-//    }
+    @ApiOperation(value = "프로젝트 수정", notes =
+            "end_date을 제외한 모든 값은 Mandatory입니다. \n" +
+                    "\n" +
+                    "단, is_proceed의 값이 (0 : 진행 종료)일 경우, end_date의 값 또한 Mandatory입니다. \n" +
+                    "is_proceed의 값이 (1 : 진행 중)일 경우, end_date의 값은 null로 저장됩니다. \n" +
+                    "\n" +
+                    "is_proceed의 default 값은 (0 : 진행 종료)입니다.")
+    @ApiResponses({
+            @ApiResponse(code = 400, message =
+                    "2002 : 유효하지 않은 JWT입니다.\n" +
+                    "2020 : 프로젝트 제목을 입력해주세요. \n" +
+                    "2021 : 프로젝트 시작 날짜를 입력해주세요. \n" +
+                    "2022 : 프로젝트 종료 날짜를 입력해주세요. \n" +
+                    "2023 : 프로젝트 시작-종료 날짜를 순서에 맞게 입력해주세요. \n" +
+                    "2024 : 프로젝트 구분을 입력해주세요.\n" +
+                    "2025 : 프로젝트 소개를 입력해주세요.\n" +
+                    "2026 : 프로젝트 내용 제목을 입력해주세요.\n" +
+                    "2027 : 프로젝트 내용 본문을 입력해주세요.\n" +
+                    "2028 : 프로젝트 메모 본문을 입력해주세요.\n" +
+                    "2029 : 프로젝트 진행 여부 입력을 확인해주세요.(0 : 진행 종료, 1 : 진행 중)\n"
+            ),
+            @ApiResponse(code = 403, message = "J2002 : ACCESS-TOKEN이 맞지 않습니다."),
+            @ApiResponse(code = 404, message = "J2001 : 헤더의 JWT 토큰이 비어있습니다.", response = ApiErrorResponse.class)
+    })
+    @ResponseBody
+    @PatchMapping("/edit/{project_id}")
+    public ResponseEntity<BaseResponse> editProject(@PathVariable("project_id") Long projectId, @RequestBody @Valid PostProjectRequest postProjectRequest){
+        try {
+            Long userId = jwtService.getUserId();
+            Optional<Project> projectById = projectService.getProjectById(projectId);
+
+            // Validation
+            if (userId == null) {
+//                return new BaseResponse<>(INVALID_JWT);
+                return new ResponseEntity(new BaseResponse(INVALID_JWT),INVALID_JWT.getHttpStatus());
+            }
+            // 프로젝트가 없는 경우
+            if (projectById.isEmpty()) {
+                return new ResponseEntity(new BaseResponse(INVALID_PROJECT),INVALID_PROJECT.getHttpStatus());
+            }
+            //유저 프로젝트 권한 확인
+            if (projectById.get().getUser().getUserId() != userId) {
+                return new ResponseEntity(new BaseResponse(INVALID_USER_JWT),INVALID_USER_JWT.getHttpStatus());
+            }
+
+            if (postProjectRequest.getTitle() == null) {
+//                return new BaseResponse<>(EMPTY_TITLE);
+                return new ResponseEntity(new BaseResponse(EMPTY_TITLE),EMPTY_TITLE.getHttpStatus());
+            }
+            if (postProjectRequest.getStart_date() == null) {
+//                return new BaseResponse<>(EMPTY_START_DATE);
+                return new ResponseEntity(new BaseResponse(EMPTY_START_DATE),EMPTY_START_DATE.getHttpStatus());
+            }
+            // 종료 날짜 X && 진행 종료
+            if (postProjectRequest.getEnd_date() == null && postProjectRequest.getIs_proceed() == 0) {
+//                return new BaseResponse<>(EMPTY_END_DATE);
+                return new ResponseEntity(new BaseResponse(EMPTY_END_DATE),EMPTY_END_DATE.getHttpStatus());
+            }
+            // 시작 날짜가 종료 날짜 보다 클 경우
+            if (postProjectRequest.getIs_proceed() == 0 && compareDates(postProjectRequest.getStart_date(), postProjectRequest.getEnd_date()) > 0) {
+//                return new BaseResponse<>(DISORDERED_DATE);
+                return new ResponseEntity(new BaseResponse(DISORDERED_DATE),DISORDERED_DATE.getHttpStatus());
+            }
+            if (postProjectRequest.getIs_proceed() != 0 && postProjectRequest.getIs_proceed() != 1) {
+//                return new BaseResponse<>(INVALID_ISPROCEED);
+                return new ResponseEntity(new BaseResponse(INVALID_ISPROCEED),INVALID_ISPROCEED.getHttpStatus());
+            }
+            if (postProjectRequest.getClassification() == null) {
+//                return new BaseResponse<>(EMPTY_CLASSIFICATION);
+                return new ResponseEntity(new BaseResponse(EMPTY_CLASSIFICATION),EMPTY_CLASSIFICATION.getHttpStatus());
+            }
+            if (postProjectRequest.getIntroduction() == null) {
+//                return new BaseResponse<>(EMPTY_INTRODUCTION);
+                return new ResponseEntity(new BaseResponse(EMPTY_INTRODUCTION),EMPTY_INTRODUCTION.getHttpStatus());
+            }
+            // 진행 중 일 경우, end_date = null로 set
+            if (postProjectRequest.getIs_proceed()==1) {
+                postProjectRequest.setEnd_date(null);
+            }
+
+            //TODO
+            // 입력받은 프로젝트 내용 -> 기존에 존재한 프로젝트에 .set으로 수정 -> repository.save 로 저장하면 수정되서 저장됨
+            // 프로젝트, 프로젝트 디테일, 프로젝트 노트에 모두 적용
+            projectService.insertPostProjectReq(postProjectRequest, projectById.get());
+
+            PostProjectResponse projectEdited = projectService.createProjectPackage(postProjectRequest, userId);
+
+//            return new BaseResponse<>(postProjectResponse, SUCCESS_CREATE);
+            return new ResponseEntity<>(new BaseResponse(projectEdited), SUCCESS.getHttpStatus());
+
+
+
+        } catch (BaseException exception) {
+            exception.printStackTrace();
+            return new ResponseEntity<>(new BaseResponse(exception.getStatus()),exception.getStatus().getHttpStatus());
+        }
+
+    }
 
 
 

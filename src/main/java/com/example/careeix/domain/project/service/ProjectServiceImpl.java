@@ -14,8 +14,8 @@ import com.example.careeix.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -32,14 +32,69 @@ public class ProjectServiceImpl implements ProjectService {
     private final UserRepository userRepository;
 
 
+
     @Override
-    public Project createProject(PostProjectRequest postProjectRequest, Long user_id) throws BaseException {
+    public PostProjectResponse createProjectPackage(PostProjectRequest postProjectRequest, Long user_id) throws BaseException {
 
         try{
             User user = userRepository.findByUserId(user_id).get();
-            Project projectSaved = projectRepository.save(postProjectRequest.toEntity(user));
+            //project DB에 저장
+            Project projectSaved = createProject(postProjectRequest.toEntity(user));
 
-            return projectSaved;
+            List<PostProjectDetail> pdSaved = new ArrayList<>();
+
+            for (PostProjectDetail pd : postProjectRequest.getProjectDetails()) {
+                if (pd.getProject_detail_title() == null) {
+                    throw new BaseException(EMPTY_PDETAIL_TITLE);
+                }
+                if (pd.getContent() == null) {
+                    throw new BaseException(EMPTY_PDETAIL_CONTENT);
+                }
+                //project Detail DB에 저장
+                ProjectDetail projectDetailSaved = createProjectDetail(pd, projectSaved);
+
+                for (PostProjectNote pn : pd.getProjectNotes()) {
+                    if (pn.getContent() == null) {
+                        throw new BaseException(EMPTY_PNOTE_CONTENT);
+                    }
+                    //project Note DB에 저장
+                    createProjectNote(pn, projectDetailSaved);
+
+                }
+                pdSaved.add(pd);
+            }
+
+            PostProjectResponse postProjectResponse = new PostProjectResponse(
+                    projectSaved.getProjectId(),
+                    projectSaved.getTitle(),
+                    projectSaved.getStartDate(),
+                    projectSaved.getEndDate(),
+                    projectSaved.getIsProceed(),
+                    projectSaved.getClassification(),
+                    projectSaved.getIntroduction(),
+                    pdSaved
+            );
+
+            return postProjectResponse;
+
+        } catch (BaseException exception) {
+            exception.printStackTrace();
+            if (exception.getStatus()==EMPTY_PDETAIL_TITLE) {
+                throw new BaseException(EMPTY_PDETAIL_TITLE);
+            } else if (exception.getStatus() == EMPTY_PDETAIL_CONTENT) {
+                throw new BaseException(EMPTY_PDETAIL_CONTENT);
+            } else if (exception.getStatus() == EMPTY_PNOTE_CONTENT) {
+                throw new BaseException(EMPTY_PNOTE_CONTENT);
+            } else {
+                throw new BaseException(DATABASE_ERROR);
+            }
+        }
+    }
+
+    @Override
+    public Project createProject(Project project) throws BaseException {
+        try{
+            return projectRepository.save(project);
         } catch (Exception exception) {
             exception.printStackTrace();
             throw new BaseException(DATABASE_ERROR);
@@ -56,12 +111,6 @@ public class ProjectServiceImpl implements ProjectService {
         }
     }
 
-//    @Override
-//    public void createProjectNotes(List<PostProjectNote> projectNotes, ProjectDetail projectDetail) {
-//        for (PostProjectNote pn : projectNotes) {
-//            projectNoteRepository.save(pn.toEntity(projectDetail));
-//        }
-//    }
 
     @Override
     public void createProjectNote(PostProjectNote projectNote, ProjectDetail projectDetail) throws BaseException {
@@ -202,6 +251,18 @@ public class ProjectServiceImpl implements ProjectService {
     public Optional<Project> getProjectById(long projectId) throws BaseException {
         try {
             return projectRepository.findById(projectId);
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    @Override
+    public Project insertPostProjectReq(PostProjectRequest postProjectRequest, Project project) throws BaseException {
+        try {
+            //TODO
+            // 입력받은 프로젝트 내용 -> 기존에 존재한 프로젝트에 .set으로 수정 -> repository.save 로 저장하면 수정되서 저장됨
+
         } catch (Exception exception) {
             exception.printStackTrace();
             throw new BaseException(DATABASE_ERROR);
