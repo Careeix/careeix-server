@@ -40,7 +40,7 @@ import java.util.Map;
     public class AppleServiceImpl {
 
     private String createClientSecret() throws IOException {
-        Date expirationDate = (Date) Date.from(LocalDateTime.now().plusDays(30).atZone(ZoneId.systemDefault()).toInstant());
+        java.util.Date expirationDate = Date.from(LocalDateTime.now().plusDays(30).atZone(ZoneId.systemDefault()).toInstant());
         return Jwts.builder()
                 .setHeaderParam("kid", "2T295L3R6N")
                 .setHeaderParam("alg", "ES256")

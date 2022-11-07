@@ -41,13 +41,11 @@ public class OAuth2UserServiceAppleImpl implements OAuth2UserServiceApple {
 
     private final UserRepository userRepository;
 
-    @Value("${spring.security.oauth2.client.provider.apple.user-info-uri}")
-    private String appleUserInfoUrl;
 
     public User validateAppleAccessToken(String idToken) {
         StringBuffer result = new StringBuffer();
         try {
-            URL url = new URL(appleUserInfoUrl);
+            URL url = new URL("https://appleid.apple.com/auth/keys");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
             BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
@@ -58,6 +56,7 @@ public class OAuth2UserServiceAppleImpl implements OAuth2UserServiceApple {
                 result.append(line);
             }
         } catch (IOException e) {
+            System.out.println("IOEx");
             throw new AppleFailException();
         }
         com.google.gson.JsonParser parser = new com.google.gson.JsonParser();
