@@ -62,6 +62,8 @@ dependencies {
     implementation 'commons-io:commons-io:2.11.0'
     implementation 'com.querydsl:querydsl-jpa'
 
+    compile group: 'org.bouncycastle', name: 'bcpkix-jdk14', version: '1.55' //Thanks for using https://jar-download.com
+
     // h2
     implementation('com.h2database:h2') // 인메모리 관계형 DB
 
