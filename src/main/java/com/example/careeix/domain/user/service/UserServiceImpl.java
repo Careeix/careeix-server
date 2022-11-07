@@ -1,6 +1,7 @@
 package com.example.careeix.domain.user.service;
 
 
+import com.example.careeix.domain.user.dto.AppleLoginRequest;
 import com.example.careeix.domain.user.dto.KakaoLoginRequest;
 import com.example.careeix.domain.user.dto.UserInfoRequest;
 import com.example.careeix.domain.user.entity.User;
@@ -40,6 +41,13 @@ public class UserServiceImpl implements UserService {
     @Override
     public User insertUser(KakaoLoginRequest kakaoLoginRequest, User kakaoUser) {
         User user = kakaoLoginRequest.toEntity(kakaoUser.getUserId(), kakaoUser);
+
+        return userRepository.save(user);
+    }
+
+    @Override
+    public User insertUserApple(AppleLoginRequest appleLoginRequest, User appleUser) {
+        User user = appleLoginRequest.toEntity(appleUser.getUserId(), appleUser);
 
         return userRepository.save(user);
     }
