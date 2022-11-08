@@ -13,5 +13,6 @@ public interface ProjectDetailRepository extends JpaRepository<ProjectDetail, Lo
     List<ProjectDetail> findAllByProject_ProjectId(Long projectId);
 
 
+    void deleteAllByProject_ProjectId(Long projectId);
 
 }

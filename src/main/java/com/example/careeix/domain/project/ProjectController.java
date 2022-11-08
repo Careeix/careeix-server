@@ -140,7 +140,7 @@ public class ProjectController {
             }
 
             //TODO
-            // projectDetails 없을 때(projectDetail로 잘못 적었었음),
+            // projectDetails 없을 때(projectDetail로 잘못 적었었음), 다른 key값들도 마찬가지.
             // 프로젝트는 생성되고 런타임error 생기는 오류.
             // 목차나 노트에서 오류가 날 경우 프로젝트도 저장 안되여야함.
 
@@ -220,6 +220,7 @@ public class ProjectController {
 //                return new ResponseEntity(new BaseResponse(INVALID_JWT),INVALID_JWT.getHttpStatus());
 //            }
 
+
             Optional<Project> project = projectService.getProjectById(projectId);
             // 프로젝트가 없는 경우
             if (project.isEmpty()) {
@@ -234,7 +235,10 @@ public class ProjectController {
                 return new ResponseEntity(new BaseResponse(DELETED_PROJECT),DELETED_PROJECT.getHttpStatus());
             }
 
+            //TODO
+            // 프로젝트 전체 반환
             GetSelectProjectResponse projectResponse = projectService.getProjectByIdResponse(projectId);
+//            PostProjectResponse project = projectService.createProjectPackage(postProjectRequest, userId);
 
             return new ResponseEntity<>(new BaseResponse(projectResponse), SUCCESS.getHttpStatus());
 
@@ -300,17 +304,17 @@ public class ProjectController {
 
     /**
      * 프로젝트 수정 API
-     * [PATCH] /:project_id/edit
+     * [PATCH] /edit/:project_id
      *
      * @return ResponseEntity<BaseResponse>
      */
     @ApiOperation(value = "프로젝트 수정", notes =
+            "JWT는 Mandatory입니다.\n" +
+            "수정하고자 하는 프로젝트의 Project_id를 입력 바랍니다.\n" +
             "end_date을 제외한 모든 값은 Mandatory입니다. \n" +
-                    "\n" +
-                    "단, is_proceed의 값이 (0 : 진행 종료)일 경우, end_date의 값 또한 Mandatory입니다. \n" +
-                    "is_proceed의 값이 (1 : 진행 중)일 경우, end_date의 값은 null로 저장됩니다. \n" +
-                    "\n" +
-                    "is_proceed의 default 값은 (0 : 진행 종료)입니다.")
+            "단, is_proceed의 값이 (0 : 진행 종료)일 경우, end_date의 값 또한 Mandatory입니다. \n" +
+            "is_proceed의 값이 (1 : 진행 중)일 경우, end_date의 값은 null로 저장됩니다. \n" +
+            "is_proceed의 default 값은 (0 : 진행 종료)입니다.")
     @ApiResponses({
             @ApiResponse(code = 400, message =
                     "2002 : 유효하지 않은 JWT입니다.\n" +
@@ -331,15 +335,25 @@ public class ProjectController {
     @ResponseBody
     @PatchMapping("/edit/{project_id}")
     public ResponseEntity<BaseResponse> editProject(@PathVariable("project_id") Long projectId, @RequestBody @Valid PostProjectRequest postProjectRequest){
+        //FIXME
+        // 프로젝트는 save로 덮어씌움
+        // projectDetails, projectNotes 는 지웠다가 새로 만들어서 저장 -> 이게 맞나..? 효율성 측면에서 확인하고 필요시 수정
+        // 위 처럼 진행한 이유는
+        // 1. projectDetails, projectNotes의 순서가 바뀌는 경우가 존재 -> 각 id 오름차순으로 출력되는 상황이어서 save로 덮어 씌울 경우, 순서가 적용 안됨. -> created 순으로 출력하면 되려나?
+        // 2. 새로 추가되는 경우가 존재 -> 생각해보니까 save로 해결되네. (save는 이미 있으면 덮어 씌우고 없으면 새로 생성)
+
         try {
             Long userId = jwtService.getUserId();
-            Optional<Project> projectById = projectService.getProjectById(projectId);
 
             // Validation
             if (userId == null) {
 //                return new BaseResponse<>(INVALID_JWT);
                 return new ResponseEntity(new BaseResponse(INVALID_JWT),INVALID_JWT.getHttpStatus());
             }
+
+            // projectId의 해당 프로젝트
+            Optional<Project> projectById = projectService.getProjectById(projectId);
+
             // 프로젝트가 없는 경우
             if (projectById.isEmpty()) {
                 return new ResponseEntity(new BaseResponse(INVALID_PROJECT),INVALID_PROJECT.getHttpStatus());
@@ -384,12 +398,9 @@ public class ProjectController {
                 postProjectRequest.setEnd_date(null);
             }
 
-            //TODO
-            // 입력받은 프로젝트 내용 -> 기존에 존재한 프로젝트에 .set으로 수정 -> repository.save 로 저장하면 수정되서 저장됨
-            // 프로젝트, 프로젝트 디테일, 프로젝트 노트에 모두 적용
-            projectService.insertPostProjectReq(postProjectRequest, projectById.get());
 
-            PostProjectResponse projectEdited = projectService.createProjectPackage(postProjectRequest, userId);
+            PostProjectResponse projectEdited = projectService.editProjectPackage(postProjectRequest, projectById.get());
+
 
 //            return new BaseResponse<>(postProjectResponse, SUCCESS_CREATE);
             return new ResponseEntity<>(new BaseResponse(projectEdited), SUCCESS.getHttpStatus());

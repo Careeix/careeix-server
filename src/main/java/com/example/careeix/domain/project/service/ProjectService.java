@@ -31,8 +31,9 @@ public interface ProjectService {
 
     Optional<Project> getProjectById (long projectId) throws BaseException;
 
-
-    Project insertPostProjectReq(@Valid PostProjectRequest postProjectRequest, Project project) throws BaseException;
-
-
+//파라미터 수정
+    PostProjectResponse editProjectPackage(@Valid PostProjectRequest postProjectRequest, Project project) throws BaseException;
+    Project editPostProject(@Valid PostProjectRequest postProjectRequest, Project project) throws BaseException;
+    ProjectDetail editProjectDetail(@Valid PostProjectDetail postProjectDetail, ProjectDetail projectDetail) throws BaseException;
+    ProjectNote editProjectNote(@Valid PostProjectNote postProjectNote, ProjectNote projectNote) throws BaseException;
 }

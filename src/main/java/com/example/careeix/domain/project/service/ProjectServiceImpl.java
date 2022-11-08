@@ -1,7 +1,6 @@
 package com.example.careeix.domain.project.service;
 
 import com.example.careeix.config.BaseException;
-import com.example.careeix.config.BaseResponse;
 import com.example.careeix.domain.project.dto.*;
 import com.example.careeix.domain.project.entity.Project;
 import com.example.careeix.domain.project.entity.ProjectDetail;
@@ -12,7 +11,6 @@ import com.example.careeix.domain.project.repository.ProjectRepository;
 import com.example.careeix.domain.user.entity.User;
 import com.example.careeix.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,6 +51,8 @@ public class ProjectServiceImpl implements ProjectService {
                 //project Detail DB에 저장
                 ProjectDetail projectDetailSaved = createProjectDetail(pd, projectSaved);
 
+                //FIXME
+                // 🚨 projectNotes는 Mandatory가 아님..!
                 for (PostProjectNote pn : pd.getProjectNotes()) {
                     if (pn.getContent() == null) {
                         throw new BaseException(EMPTY_PNOTE_CONTENT);
@@ -159,7 +159,6 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-
     public List<GetProjectResponse> getProjectsByUserId(long userId) throws BaseException {
         try {
             List<GetProjectResponse> getProjectResponseList = new ArrayList<>();
@@ -257,12 +256,82 @@ public class ProjectServiceImpl implements ProjectService {
         }
     }
 
+    @Transactional
     @Override
-    public Project insertPostProjectReq(PostProjectRequest postProjectRequest, Project project) throws BaseException {
-        try {
-            //TODO
-            // 입력받은 프로젝트 내용 -> 기존에 존재한 프로젝트에 .set으로 수정 -> repository.save 로 저장하면 수정되서 저장됨
+    public PostProjectResponse editProjectPackage(PostProjectRequest postProjectRequest, Project project) throws BaseException {
+        try{
+            Project projectSaved = editPostProject(postProjectRequest, project);
+            projectRepository.save(projectSaved);
 
+            for (ProjectDetail pd : projectSaved.getProjectDetails()) {
+                projectNoteRepository.deleteAllByProjectDetail_ProjectDetailId(pd.getProjectDetailId());
+            }
+            projectDetailRepository.deleteAllByProject_ProjectId(projectSaved.getProjectId());
+
+            List<PostProjectDetail> pdSaved = new ArrayList<>();
+
+            for (PostProjectDetail pd : postProjectRequest.getProjectDetails()) {
+                if (pd.getProject_detail_title() == null) {
+                    throw new BaseException(EMPTY_PDETAIL_TITLE);
+                }
+                if (pd.getContent() == null) {
+                    throw new BaseException(EMPTY_PDETAIL_CONTENT);
+                }
+                //project Detail DB에 저장
+                ProjectDetail projectDetailSaved = createProjectDetail(pd, projectSaved);
+
+                //FIXME
+                // 🚨 projectNotes는 Mandatory가 아님..!
+                for (PostProjectNote pn : pd.getProjectNotes()) {
+                    if (pn.getContent() == null) {
+                        throw new BaseException(EMPTY_PNOTE_CONTENT);
+                    }
+                    //project Note DB에 저장
+                    createProjectNote(pn, projectDetailSaved);
+
+                }
+                pdSaved.add(pd);
+            }
+
+            PostProjectResponse postProjectResponse = new PostProjectResponse(
+                    projectSaved.getProjectId(),
+                    projectSaved.getTitle(),
+                    projectSaved.getStartDate(),
+                    projectSaved.getEndDate(),
+                    projectSaved.getIsProceed(),
+                    projectSaved.getClassification(),
+                    projectSaved.getIntroduction(),
+                    pdSaved
+            );
+
+            return postProjectResponse;
+
+        } catch (BaseException exception) {
+            exception.printStackTrace();
+            if (exception.getStatus()==EMPTY_PDETAIL_TITLE) {
+                throw new BaseException(EMPTY_PDETAIL_TITLE);
+            } else if (exception.getStatus() == EMPTY_PDETAIL_CONTENT) {
+                throw new BaseException(EMPTY_PDETAIL_CONTENT);
+            } else if (exception.getStatus() == EMPTY_PNOTE_CONTENT) {
+                throw new BaseException(EMPTY_PNOTE_CONTENT);
+            } else {
+                throw new BaseException(DATABASE_ERROR);
+            }
+        }
+    }
+
+    @Override
+    public Project editPostProject(PostProjectRequest postProjectRequest, Project project) throws BaseException {
+        try {
+            project.setClassification(postProjectRequest.getClassification());
+            project.setEndDate(postProjectRequest.getEnd_date());
+            project.setIntroduction(postProjectRequest.getIntroduction());
+            project.setIsProceed(postProjectRequest.getIs_proceed());
+            project.setStartDate(postProjectRequest.getStart_date());
+            project.setTitle(postProjectRequest.getTitle());
+            //FIXME 무식한 방법인거 같은데.... builder는 어떻게 사용하는거지??
+
+            return project;
         } catch (Exception exception) {
             exception.printStackTrace();
             throw new BaseException(DATABASE_ERROR);
@@ -270,4 +339,32 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
 
+    @Override
+    public ProjectDetail editProjectDetail(PostProjectDetail postProjectDetail, ProjectDetail projectDetail) throws BaseException {
+        try {
+            projectDetail.setContent(postProjectDetail.getContent());
+            projectDetail.setProjectDetailTitle(postProjectDetail.getProject_detail_title());
+            //FIXME 무식한 방법인거 같은데.... builder는 어떻게 사용하는거지??
+
+            return projectDetail;
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    @Override
+    public ProjectNote editProjectNote(PostProjectNote postProjectNote, ProjectNote projectNote) throws BaseException {
+        try {
+            projectNote.setContent(postProjectNote.getContent());
+            //FIXME 무식한 방법인거 같은데.... builder는 어떻게 사용하는거지??
+
+            return projectNote;
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
 }
+
