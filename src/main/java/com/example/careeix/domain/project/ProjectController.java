@@ -206,7 +206,7 @@ public class ProjectController {
      *
      * @return ResponseEntity<BaseResponse>
      */
-    @ApiOperation(value = "프로젝트 조회(프로젝트 ID별)", notes = "프로젝트 선택시 확인 할 수 있는 프로젝트 정보와 목차(ProjectDeatil)리스트 입니다.")
+    @ApiOperation(value = "프로젝트 조회(프로젝트 ID별)", notes = "프로젝트 ID에 해당하는 프로젝트, 목차(ProjectDeatils)리스트, 노트(ProjectNotes)리스트를 조회 할 수 있습니다.")
     @ApiResponses({
             @ApiResponse(code = 400, message =
                     "2031 : 존재하지 않는 프로젝트 ID입니다. 프로젝트 ID를 다시 확인해주세요\n" +
@@ -237,8 +237,7 @@ public class ProjectController {
                 return new ResponseEntity(new BaseResponse(DELETED_PROJECT),DELETED_PROJECT.getHttpStatus());
             }
 
-            //TODO
-            // 프로젝트 전체 반환
+
 //            GetSelectProjectResponse projectResponse = projectService.getProjectByIdResponse(projectId);
 //            PostProjectResponse project = projectService.createProjectPackage(postProjectRequest, userId);
             ProjectMapping projectResponse = projectService.getProjectByIdResponse(projectId);
