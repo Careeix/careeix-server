@@ -72,10 +72,10 @@ public class ProjectController {
             "end_date, projectNotes를 제외한 모든 값은 Mandatory입니다. \n" +
             "\n" +
             "단, is_proceed의 값이 (0 : 진행 종료)일 경우, end_date의 값 또한 Mandatory입니다. \n" +
-            "is_proceed의 값이 (1 : 진행 중)일 경우, end_date의 값은 null로 저장됩니다. \n" +
+            " is_proceed의 값이 (1 : 진행 중)일 경우, end_date의 값은 null로 저장됩니다. \n" +
             "\n" +
-            "is_proceed의 default 값은 (0 : 진행 종료)입니다.\n"+
-            "projectNotes가 입력 될 경우 content는 Mandatory입니다.")
+            " is_proceed의 default 값은 (0 : 진행 종료)입니다.\n"+
+            "projectNotes가 입력 될 경우 projectNotes의 content는 Mandatory입니다.")
     @ApiResponses({
             @ApiResponse(code = 400, message =
                     "2002 : 유효하지 않은 JWT입니다.\n" +
@@ -312,10 +312,11 @@ public class ProjectController {
     @ApiOperation(value = "프로젝트 수정", notes =
             "JWT는 Mandatory입니다.\n" +
             "수정하고자 하는 프로젝트의 Project_id를 입력 바랍니다.\n" +
-            "end_date을 제외한 모든 값은 Mandatory입니다. \n" +
+            "end_date, projectNotes를 제외한 모든 값은 Mandatory입니다. \n" +
             "단, is_proceed의 값이 (0 : 진행 종료)일 경우, end_date의 값 또한 Mandatory입니다. \n" +
-            "is_proceed의 값이 (1 : 진행 중)일 경우, end_date의 값은 null로 저장됩니다. \n" +
-            "is_proceed의 default 값은 (0 : 진행 종료)입니다.")
+            " is_proceed의 값이 (1 : 진행 중)일 경우, end_date의 값은 null로 저장됩니다. \n" +
+            " is_proceed의 default 값은 (0 : 진행 종료)입니다.\n"+
+            "projectNotes가 입력 될 경우 projectNotes의 content는 Mandatory입니다.")
     @ApiResponses({
             @ApiResponse(code = 400, message =
                     "2002 : 유효하지 않은 JWT입니다.\n" +
