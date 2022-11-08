@@ -1,6 +1,7 @@
 package com.example.careeix.domain.project.repository;
 
 import com.example.careeix.domain.project.entity.Project;
+import com.example.careeix.domain.project.entity.ProjectMapping;
 import com.example.careeix.domain.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -22,5 +23,7 @@ public interface ProjectRepository  extends JpaRepository<Project, Long> {
 
 //    @Query("select User from Project p where p.projectId = ?1 and p.user.status=1")
 //    User findUserByProjectId(Long projectId);
+
+    ProjectMapping findByProjectId(Long projectId);
 
 }

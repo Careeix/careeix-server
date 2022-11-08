@@ -6,6 +6,7 @@ import com.example.careeix.config.BaseResponseStatus;
 import com.example.careeix.domain.project.dto.*;
 import com.example.careeix.domain.project.entity.Project;
 import com.example.careeix.domain.project.entity.ProjectDetail;
+import com.example.careeix.domain.project.entity.ProjectMapping;
 import com.example.careeix.domain.project.service.ProjectService;
 import com.example.careeix.domain.user.service.UserService;
 import com.example.careeix.utils.dto.ApplicationResponse;
@@ -238,8 +239,9 @@ public class ProjectController {
 
             //TODO
             // 프로젝트 전체 반환
-            GetSelectProjectResponse projectResponse = projectService.getProjectByIdResponse(projectId);
+//            GetSelectProjectResponse projectResponse = projectService.getProjectByIdResponse(projectId);
 //            PostProjectResponse project = projectService.createProjectPackage(postProjectRequest, userId);
+            ProjectMapping projectResponse = projectService.getProjectByIdResponse(projectId);
 
             return new ResponseEntity<>(new BaseResponse(projectResponse), SUCCESS.getHttpStatus());
 

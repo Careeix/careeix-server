@@ -21,8 +21,6 @@ public class PostProjectDetail {
     private String project_detail_title;
     private String content;
 
-    //FIXME
-    // 🚨 projectNotes는 Mandatory가 아님..!
     //ProjectDetail Note
     @Nullable
     private List<PostProjectNote> projectNotes;
