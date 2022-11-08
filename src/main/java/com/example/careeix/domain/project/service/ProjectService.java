@@ -12,12 +12,11 @@ import java.util.Optional;
 
 public interface ProjectService {
 
-    Project createProject(@Valid PostProjectRequest postProjectRequest, Long userId) throws BaseException;
+    PostProjectResponse createProjectPackage(@Valid PostProjectRequest postProjectRequest, Long userId) throws BaseException;
 
+
+    Project createProject(@Valid Project project) throws BaseException;
     ProjectDetail createProjectDetail(@Valid PostProjectDetail projectDetail, Project project) throws BaseException;
-
-//    void createProjectNotes(@Valid List<PostProjectNote> projectNotes, ProjectDetail projectDetail);
-
     void createProjectNote(@Valid PostProjectNote projectNote, ProjectDetail projectDetail) throws BaseException;
 
     GetSelectProjectResponse getProjectByIdResponse(long projectId) throws BaseException;
@@ -32,5 +31,9 @@ public interface ProjectService {
 
     Optional<Project> getProjectById (long projectId) throws BaseException;
 
-
+//파라미터 수정
+    PostProjectResponse editProjectPackage(@Valid PostProjectRequest postProjectRequest, Project project) throws BaseException;
+    Project editPostProject(@Valid PostProjectRequest postProjectRequest, Project project) throws BaseException;
+    ProjectDetail editProjectDetail(@Valid PostProjectDetail postProjectDetail, ProjectDetail projectDetail) throws BaseException;
+    ProjectNote editProjectNote(@Valid PostProjectNote postProjectNote, ProjectNote projectNote) throws BaseException;
 }

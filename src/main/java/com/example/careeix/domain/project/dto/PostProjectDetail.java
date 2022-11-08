@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 @Getter
@@ -19,7 +20,11 @@ public class PostProjectDetail {
     //ProjectDeatil
     private String project_detail_title;
     private String content;
+
+    //FIXME
+    // 🚨 projectNotes는 Mandatory가 아님..!
     //ProjectDetail Note
+    @Nullable
     private List<PostProjectNote> projectNotes;
 
     public ProjectDetail toEntity(Project project) {

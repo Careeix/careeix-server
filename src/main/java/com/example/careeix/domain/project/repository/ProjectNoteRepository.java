@@ -11,4 +11,6 @@ public interface ProjectNoteRepository extends JpaRepository<ProjectNote, Long> 
 
     @Query("select pn from ProjectNote pn where pn.projectDetail.projectDetailId = ?1 and pn.status=1")
     List<ProjectNote> findAllByProjectDetail_ProjectDetailId(Long projectDetailId);
+
+    void deleteAllByProjectDetail_ProjectDetailId(Long projectDetailId);
 }
