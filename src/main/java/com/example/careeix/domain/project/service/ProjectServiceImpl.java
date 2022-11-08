@@ -51,15 +51,16 @@ public class ProjectServiceImpl implements ProjectService {
                 //project Detail DB에 저장
                 ProjectDetail projectDetailSaved = createProjectDetail(pd, projectSaved);
 
-                //FIXME
-                // 🚨 projectNotes는 Mandatory가 아님..!
-                for (PostProjectNote pn : pd.getProjectNotes()) {
-                    if (pn.getContent() == null) {
-                        throw new BaseException(EMPTY_PNOTE_CONTENT);
-                    }
-                    //project Note DB에 저장
-                    createProjectNote(pn, projectDetailSaved);
 
+                if(pd.getProjectNotes() != null) {
+                    for (PostProjectNote pn : pd.getProjectNotes()) {
+                        if (pn.getContent() == null) {
+                            throw new BaseException(EMPTY_PNOTE_CONTENT);
+                        }
+                        //project Note DB에 저장
+                        createProjectNote(pn, projectDetailSaved);
+
+                    }
                 }
                 pdSaved.add(pd);
             }

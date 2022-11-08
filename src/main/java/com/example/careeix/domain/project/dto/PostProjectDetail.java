@@ -24,6 +24,7 @@ public class PostProjectDetail {
     //FIXME
     // 🚨 projectNotes는 Mandatory가 아님..!
     //ProjectDetail Note
+    @Nullable
     private List<PostProjectNote> projectNotes;
 
     public ProjectDetail toEntity(Project project) {
