@@ -2,9 +2,7 @@ package com.example.careeix.domain.project.service;
 
 import com.example.careeix.config.BaseException;
 import com.example.careeix.domain.project.dto.*;
-import com.example.careeix.domain.project.entity.Project;
-import com.example.careeix.domain.project.entity.ProjectDetail;
-import com.example.careeix.domain.project.entity.ProjectNote;
+import com.example.careeix.domain.project.entity.*;
 import com.example.careeix.domain.project.repository.ProjectDetailRepository;
 import com.example.careeix.domain.project.repository.ProjectNoteRepository;
 import com.example.careeix.domain.project.repository.ProjectRepository;
@@ -124,24 +122,18 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public GetSelectProjectResponse getProjectByIdResponse(long projectId) throws BaseException {
+    public ProjectMapping getProjectByIdResponse(long projectId) throws BaseException {
         try {
+
             Project p = projectRepository.findById(projectId).get();
 
-            List<String> pdTitleList = new ArrayList<>();
-            List<ProjectDetail> pd = projectDetailRepository.findAllByProject_ProjectId(p.getProjectId());
-
-            for (ProjectDetail x : pd) {
-                pdTitleList.add(x.getProjectDetailTitle());
-            }
 
             if (p.getStatus() == 1) {
-//                return new GetProjectResponse(p.getProjectId(), p.getTitle(), p.getStartDate(), p.getEndDate(), p.getIsProceed(), p.getClassification(), p.getIntroduction());
-                return new GetSelectProjectResponse(p.getProjectId(), p.getTitle(), p.getStartDate(), p.getEndDate(), p.getIsProceed(), p.getClassification(), pdTitleList);
+                ProjectMapping projectMapping = projectRepository.findByProjectId(projectId);
+                return projectMapping;
             } else {
                 throw new BaseException(PROJECT_STATUS_ERROR);
             }
-
         } catch (Exception exception) {
             exception.printStackTrace();
             throw new BaseException(DATABASE_ERROR);
@@ -219,7 +211,7 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public void deleteProjectDetails(Long projectId) throws BaseException {
         try {
-            List<ProjectDetail> projectDetailList = projectDetailRepository.findAllByProject_ProjectId(projectId);
+            List<ProjectDetail> projectDetailList = projectDetailRepository.findAllByProject_ProjectIdAndStatus(projectId, 1);
 
             for (ProjectDetail pd : projectDetailList) {
                 pd.setStatus(0);
@@ -234,7 +226,7 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public void deleteProjectNotes(Long projectDetailId) throws BaseException {
         try {
-            List<ProjectNote> projectNoteList = projectNoteRepository.findAllByProjectDetail_ProjectDetailId(projectDetailId);
+            List<ProjectNote> projectNoteList = projectNoteRepository.findAllByProjectDetail_ProjectDetailIdAndStatus(projectDetailId,1);
 
             for (ProjectNote pn : projectNoteList) {
                 pn.setStatus(0);

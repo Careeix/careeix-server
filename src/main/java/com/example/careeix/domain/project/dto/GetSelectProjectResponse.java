@@ -1,6 +1,7 @@
 package com.example.careeix.domain.project.dto;
 
 import com.example.careeix.domain.project.entity.ProjectDetail;
+import com.example.careeix.domain.project.entity.ProjectDetailMapping;
 import io.swagger.annotations.ApiModel;
 import lombok.*;
 
@@ -20,5 +21,7 @@ public class GetSelectProjectResponse {
     private String end_date;
     private int is_proceed;
     private String classification;
-    private List<String> projectDetails;
+    private String introduction;
+    private List<ProjectDetailMapping> projectDetails;
+
 }
