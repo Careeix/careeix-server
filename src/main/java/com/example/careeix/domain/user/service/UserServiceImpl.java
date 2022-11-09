@@ -54,13 +54,19 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public User updateUserProfile(long userId, String nickName, MultipartFile file) {
+    public User updateUserProfileNickname(long userId, String nickName) {
         User user = this.getUserByUserId(userId);
 
         if (!user.getUserNickName().equals(nickName))
             this.userNicknameDuplicateCheck(nickName);
 
         user.setUserNickName(nickName);
+
+        return userRepository.save(user);
+    }
+
+    public User updateUserProfileFile(long userId, MultipartFile file) {
+        User user = this.getUserByUserId(userId);
 
         if (file != null) {
             String filename = awsS3Service.uploadImage(file);
@@ -70,6 +76,7 @@ public class UserServiceImpl implements UserService {
 
         return userRepository.save(user);
     }
+
 
 
     /**

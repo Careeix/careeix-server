@@ -106,20 +106,18 @@ public class UserController {
 
     /**
      * 사용자 프로필 수정
-     * @param userNickname, file
+     * @param userNickname
      * @return ResponseEntity<String>
      */
-    @ApiOperation(value = "사용자 프로필 수정  - jwt 0", notes = "사용자 프로필을 수정합니다. \t\n 이미지파일: multipartfile 타입 이용, null 허용" +
-            "\t\n 저장정보 s3 주소를 풀로 저장하고 있기때문에 불러오고 저장할때 추가로 작업하실건 없습니다." +
-            "\t\n file : 이미지 파일(유저프로필이미지), userNickname : 유저 닉네임", produces = "multipart/form-data")
+    @ApiOperation(value = "사용자 프로필 수정 (닉네임)  - jwt 0", notes = "사용자 프로필을 수정합니다."+
+            "\t\n userNickname : 유저 닉네임")
     @ApiResponses(value = {
             @ApiResponse(code = 400 , message = "유효하지 않은 닉네임 입니다.(U1007) \t\n JWT 토큰이 비어있습니다.(J2001)"),
             @ApiResponse(code = 403 , message = "ACCESS-TOKEN이 맞지 않습니다.(J2002)"),
             @ApiResponse(code = 409, message = "중복된 닉네임 입니다.(U1001)", response = ApiErrorResponse.class),
     })
-    @PostMapping("/update-profile")
-    public ApplicationResponse<MessageResponse> updateUserProfile(@RequestParam String userNickname,
-                                                    @RequestParam(required = false) MultipartFile file) {
+    @PostMapping("/update-profile-nickname")
+    public ApplicationResponse<MessageResponse> updateUserProfile(@RequestParam String userNickname) {
         if (!isRegexNickname(userNickname)) {
             throw new UserNicknameValidException();
         }
@@ -128,12 +126,40 @@ public class UserController {
         }
         long userId = jwtService.getUserId();
 
-        User user = userService.updateUserProfile(userId, userNickname, file);
+        User user = userService.updateUserProfileNickname(userId, userNickname);
+
 
         return ApplicationResponse.ok(MessageResponse.builder()
                 .message("사용자 프로필이 수정되었습니다.")
                 .build());
     }
+
+    /**
+     * 사용자 프로필 수정
+     * @param  file
+     * @return ResponseEntity<String>
+     */
+    @ApiOperation(value = "사용자 프로필 수정 (프로필 이미지)  - jwt 0", notes = "사용자 프로필을 수정합니다. \t\n 이미지파일: multipartfile 타입 이용, null 허용" +
+            "\t\n 저장정보 s3 주소를 풀로 저장하고 있기때문에 불러오고 저장할때 추가로 작업하실건 없습니다." +
+            "\t\n file : 이미지 파일(유저프로필이미지)", produces = "multipart/form-data")
+    @ApiResponses(value = {
+            @ApiResponse(code = 400 , message = "JWT 토큰이 비어있습니다.(J2001)"),
+            @ApiResponse(code = 403 , message = "ACCESS-TOKEN이 맞지 않습니다.(J2002)", response = ApiErrorResponse.class),
+    })
+    @PostMapping("/update-profile-file")
+    public ApplicationResponse<MessageResponse> updateUserProfileFile(
+                                                                  @RequestParam(required = false) MultipartFile file) {
+
+        long userId = jwtService.getUserId();
+
+        User user = userService.updateUserProfileFile(userId, file);
+
+
+        return ApplicationResponse.ok(MessageResponse.builder()
+                .message("사용자 프로필이 수정되었습니다.")
+                .build());
+    }
+
 
 
     /**
@@ -324,17 +350,17 @@ public class UserController {
 //            @ApiResponse(code = 403 , message = "ACCESS-TOKEN이 맞지 않습니다.(J2002)", response = ApiErrorResponse.class),
 //    })
 //    public ApplicationResponse<MessageResponse> withdrawAppleUser(@Valid @RequestBody AppleWithdrawRequest appleWithdrawRequest) throws IOException {
-//        long userId = jwtService.getUserId();
-//        userService.withdrawUser(userId);
-//        User user = userService.getUserByUserId(userId);
+////        long userId = jwtService.getUserId();
+////        userService.withdrawUser(userId);
+////        User user = userService.getUserByUserId(userId);
 //
-//        appleService.revoke(user, appleWithdrawRequest.getAuthorizationCode());
+//        appleService.revoke(appleWithdrawRequest.getAuthorizationCode());
 //
 //        return ApplicationResponse.ok(MessageResponse.builder()
 //                .message("회원 탈퇴가 완료되었습니다.")
 //                .build());
 //    }
-//
+
 
     /**
      * 카카오 로그인 API

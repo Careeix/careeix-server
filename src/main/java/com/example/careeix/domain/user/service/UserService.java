@@ -22,7 +22,8 @@ public interface UserService {
     User getUserByUserId(Long userId);
 
 
-    User updateUserProfile(long userId, String nickName, MultipartFile file);
+    User updateUserProfileNickname(long userId, String nickName);
+    User updateUserProfileFile(long userId, MultipartFile file);
 
     User withdrawUser(long userId);
 

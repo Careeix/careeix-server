@@ -14,6 +14,7 @@ import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -65,7 +66,7 @@ import java.util.Map;
     }
 
 
-    public AppleToken GenerateAuthToken(User user, String authorizationCode) throws IOException {
+    public AppleToken GenerateAuthToken(String authorizationCode) throws IOException {
         RestTemplate restTemplate = new RestTemplateBuilder().build();
         String authUrl = "https://appleid.apple.com/auth/token";
 
@@ -89,9 +90,9 @@ import java.util.Map;
     }
 
 
-    public void revoke(User user, String authorizationCode) throws IOException {
+    public void revoke(String authorizationCode) throws IOException {
 
-        AppleToken appleAuthToken = GenerateAuthToken(user, authorizationCode);
+        AppleToken appleAuthToken = GenerateAuthToken(authorizationCode);
 
         if (appleAuthToken.getAccessToken() != null) {
             RestTemplate restTemplate = new RestTemplateBuilder().build();
@@ -105,7 +106,7 @@ import java.util.Map;
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
             headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-            HttpEntity<MultiValueMap<String, String>> httpEntity = new HttpEntity<>(params, headers);
+            HttpEntity<MultiValueMap<   String, String>> httpEntity = new HttpEntity<>(params, headers);
 
             restTemplate.postForEntity(revokeUrl, httpEntity, String.class);
         }
