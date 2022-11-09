@@ -122,15 +122,48 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public ProjectMapping getProjectByIdResponse(long projectId) throws BaseException {
+    public PostProjectResponse getProjectByIdResponse(long projectId) throws BaseException {
         try {
 
             Project p = projectRepository.findById(projectId).get();
 
+            List<PostProjectNote> ppnList = new ArrayList<>();
+            List<PostProjectDetail> ppdList = new ArrayList<>();
+
 
             if (p.getStatus() == 1) {
                 ProjectMapping projectMapping = projectRepository.findByProjectId(projectId);
-                return projectMapping;
+
+
+                for (ProjectDetailMapping pdm : projectMapping.getProjectDetails()) {
+
+                    for (ProjectNoteMapping pdn : pdm.getProjectNotes()) {
+                        PostProjectNote ppn = new PostProjectNote(pdn.getContent());
+                        ppnList.add(ppn);
+                    }
+
+                    PostProjectDetail ppd = new PostProjectDetail(
+                            pdm.getProjectDetailTitle(),
+                            pdm.getContent(),
+                            ppnList
+                    );
+                    ppdList.add(ppd);
+                }
+
+                //
+                PostProjectResponse postProjectResponse = new PostProjectResponse(
+                        p.getProjectId(),
+                        p.getTitle(),
+                        p.getStartDate(),
+                        p.getEndDate(),
+                        p.getIsProceed(),
+                        p.getClassification(),
+                        p.getIntroduction(),
+                        ppdList
+                );
+                //
+
+                return postProjectResponse;
             } else {
                 throw new BaseException(PROJECT_STATUS_ERROR);
             }

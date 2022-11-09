@@ -4,7 +4,6 @@ import com.example.careeix.config.BaseException;
 import com.example.careeix.domain.project.dto.*;
 import com.example.careeix.domain.project.entity.Project;
 import com.example.careeix.domain.project.entity.ProjectDetail;
-import com.example.careeix.domain.project.entity.ProjectMapping;
 import com.example.careeix.domain.project.entity.ProjectNote;
 
 import javax.validation.Valid;
@@ -20,7 +19,7 @@ public interface ProjectService {
     ProjectDetail createProjectDetail(@Valid PostProjectDetail projectDetail, Project project) throws BaseException;
     void createProjectNote(@Valid PostProjectNote projectNote, ProjectDetail projectDetail) throws BaseException;
 
-    ProjectMapping getProjectByIdResponse(long projectId) throws BaseException;
+    PostProjectResponse getProjectByIdResponse(long projectId) throws BaseException;
     String getProjectDetail(long projectId);
     List<String> getProjectNote(long projectId);
 

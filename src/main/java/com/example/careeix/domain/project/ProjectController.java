@@ -216,11 +216,6 @@ public class ProjectController {
     @GetMapping("/{project_id}")
     public ResponseEntity<BaseResponse> getProjectByProjectId(@PathVariable("project_id") Long projectId){
         try {
-//            Long userId = jwtService.getUserId();
-//            //Validation
-//            if (userId == null) {
-//                return new ResponseEntity(new BaseResponse(INVALID_JWT),INVALID_JWT.getHttpStatus());
-//            }
 
 
             Optional<Project> project = projectService.getProjectById(projectId);
@@ -238,9 +233,8 @@ public class ProjectController {
             }
 
 
-//            GetSelectProjectResponse projectResponse = projectService.getProjectByIdResponse(projectId);
-//            PostProjectResponse project = projectService.createProjectPackage(postProjectRequest, userId);
-            ProjectMapping projectResponse = projectService.getProjectByIdResponse(projectId);
+            PostProjectResponse projectResponse = projectService.getProjectByIdResponse(projectId);
+
 
             return new ResponseEntity<>(new BaseResponse(projectResponse), SUCCESS.getHttpStatus());
 
