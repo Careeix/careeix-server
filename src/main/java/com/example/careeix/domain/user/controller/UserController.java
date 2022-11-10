@@ -274,6 +274,11 @@ public class UserController {
     })
     public ApplicationResponse<LoginResponse> createAppleUser(@Valid @RequestBody AppleAccessRequest appleAccessRequest) {
         User user = oAuth2UserServiceApple.validateAppleAccessToken(appleAccessRequest.getIdentityToken());
+        if (user.getStatus() == 0){
+            return ApplicationResponse.ok(LoginResponse.builder()
+                    .message("회원가입을 진행해주세요, apple-login api에서 추가정보를 입력해주세요")
+                    .build());
+        }
         if (user.getUserJob() == null) {
             return ApplicationResponse.ok(LoginResponse.builder()
                     .message("회원가입을 진행해주세요, apple-login api에서 추가정보를 입력해주세요")
@@ -311,7 +316,7 @@ public class UserController {
             throw new UserNicknameValidException();
         }
 
-        if (user.getUserJob() != null) {
+        if (user.getUserJob() != null && user.getStatus() ==1) {
             throw new UserDuplicateException();
         }
 
@@ -382,6 +387,11 @@ public class UserController {
 //        if(user.getSocialId() == null){
 //            throw new KakaoFailException();
 //        }
+        if (user.getStatus() == 0){
+            return ApplicationResponse.ok(LoginResponse.builder()
+                    .message("회원가입을 진행해주세요, kakao-login api에서 추가정보를 입력해주세요")
+                    .build());
+        }
         // 회원가입 한 적 없는 경우 - 첫번째 호출
         if (user.getUserJob() == null) {
             return ApplicationResponse.ok(LoginResponse.builder()
@@ -421,7 +431,7 @@ public class UserController {
             throw new UserNicknameValidException();
         }
 
-        if (user.getUserJob() != null) {
+        if (user.getUserJob() != null && user.getStatus() ==1) {
             throw new UserDuplicateException();
         }
 

@@ -41,14 +41,14 @@ public class UserServiceImpl implements UserService {
     @Override
     public User insertUser(KakaoLoginRequest kakaoLoginRequest, User kakaoUser) {
         User user = kakaoLoginRequest.toEntity(kakaoUser.getUserId(), kakaoUser);
-
+        user.setStatus(1);
         return userRepository.save(user);
     }
 
     @Override
     public User insertUserApple(AppleLoginRequest appleLoginRequest, User appleUser) {
         User user = appleLoginRequest.toEntity(appleUser.getUserId(), appleUser);
-
+        user.setStatus(1);
         return userRepository.save(user);
     }
 
