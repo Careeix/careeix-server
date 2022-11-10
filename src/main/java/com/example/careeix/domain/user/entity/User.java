@@ -2,19 +2,15 @@ package com.example.careeix.domain.user.entity;
 
 import com.example.careeix.config.BaseEntity;
 import com.example.careeix.domain.project.entity.Project;
-import com.example.careeix.domain.project.entity.ProjectDetail;
+import com.example.careeix.domain.report.entity.ReportUser;
 import lombok.*;
-import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.validator.constraints.br.CPF;
 
 import javax.persistence.*;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
 
-import static com.example.careeix.domain.user.constant.UserConstants.EOAuth2UserServiceImpl.*;
 import static com.example.careeix.domain.user.constant.UserConstants.ESocialProvider.eKakao;
 
 @Entity
@@ -46,6 +42,12 @@ public class User extends BaseEntity {
 
     @OneToMany(mappedBy = "user")
     private List<Project> projects = new ArrayList<>();
+
+    @OneToMany(mappedBy = "reportUserTo")
+    private List<ReportUser> reportUserToList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "reportUserFrom")
+    private List<ReportUser> reportUserFromList = new ArrayList<>();
 
     public static User toEntityOfKakaoUser(HashMap<String, Object> userInfo) {
         return User.builder()

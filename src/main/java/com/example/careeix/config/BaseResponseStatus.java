@@ -50,6 +50,8 @@ public enum BaseResponseStatus {
     INVALID_PROJECT(false, "2031", "존재하지 않는 프로젝트 ID입니다. 프로젝트 ID를 다시 확인해주세요", HttpStatus.BAD_REQUEST),
     DELETED_PROJECT(false, "2032", "이미 삭제된 프로젝트 ID입니다. 프로젝트 ID를 다시 확인해주세요", HttpStatus.BAD_REQUEST),
 
+    REPORT_ID_EQUAL(false, "2033", "신고자ID와 피신고자ID가 동일합니다.", HttpStatus.BAD_REQUEST),
+
     /**
      * 3000 : Response 오류
      */
