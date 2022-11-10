@@ -49,7 +49,7 @@ public class GlobalExceptionHandler {
                 e.getMessage()
         );
         return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
+                .status(e.getHttpStatus())
                 .body(exceptionResponse);
 
     }
