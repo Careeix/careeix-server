@@ -114,7 +114,7 @@ public class UserController {
     @ApiResponses(value = {
             @ApiResponse(code = 400 , message = "유효하지 않은 닉네임 입니다.(U1007) \t\n JWT 토큰이 비어있습니다.(J2001)"),
             @ApiResponse(code = 403 , message = "ACCESS-TOKEN이 맞지 않습니다.(J2002)"),
-            @ApiResponse(code = 409, message = "중복된 닉네임 입니다.(U1001)", response = ApiErrorResponse.class),
+            @ApiResponse(code = 409, message = "중복된 닉네임 입니다.(U1001) \t\n 기존 닉네임과 동일합니다(U1006)", response = ApiErrorResponse.class),
     })
     @PostMapping("/update-profile-nickname")
     public ApplicationResponse<MessageResponse> updateUserProfile(@RequestParam String userNickname) {

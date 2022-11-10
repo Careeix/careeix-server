@@ -7,6 +7,7 @@ import com.example.careeix.domain.user.dto.UserInfoRequest;
 import com.example.careeix.domain.user.entity.User;
 import com.example.careeix.domain.user.exception.NotFoundUserException;
 import com.example.careeix.domain.user.exception.UserNicknameDuplicateException;
+import com.example.careeix.domain.user.exception.UserUpdateNicknameDuplicateException;
 import com.example.careeix.domain.user.repository.UserRepository;
 import com.example.careeix.utils.file.service.AwsS3Service;
 import lombok.RequiredArgsConstructor;
@@ -56,8 +57,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public User updateUserProfileNickname(long userId, String nickName) {
         User user = this.getUserByUserId(userId);
-
-        if (!user.getUserNickName().equals(nickName))
+        if (user.getUserNickName().equals(nickName))
+            throw new UserUpdateNicknameDuplicateException();
+        else
             this.userNicknameDuplicateCheck(nickName);
 
         user.setUserNickName(nickName);
