@@ -109,32 +109,40 @@ public class UserJobServiceImpl implements UserJobService{
     @Override
     public List<ProfileRecommendResponse> getProfile(User user) {
         List<String> userJobList = this.getUserJobName(user.getUserId());
-        userJobList.add(0, user.getUserJob());
+//        userJobList.add(0, user.getUserJob());
         List<String> distinctUserJobList = userJobList.stream().distinct().collect(Collectors.toList());
         List<ProfileRecommendResponse> profileRecommendResponses = new ArrayList<>();
+        List<User> distinctUser = new ArrayList<>();
+        distinctUser.add(user);
 
-
-        // 다른 유저들의 상세 직무랑 비교
-//        jobRepository.findByJobName()
-
+        // 사용자의 세무직무 회문
         for(String job: distinctUserJobList){
             if(profileRecommendResponses.size()>6){
                 break;
             }
-            List<User> findUser = userRepository.findByUserJob(job);
-            if(findUser.isEmpty()){
+            // 사용자 세부직무와 같은 유저를 찾기 - string이면 string과 같은 Job여러개가 담김 각각은 당연히 유저가다름
+            List<Job> findJob = jobRepository.findByJobName(job);
+//            List<User> findUser = userRepository.findByUserJob(job);
+            // 사용자 세부 직무랑 같은 다른 유저가 없으면 다른 세부직무로 돌리기
+            if(findJob.isEmpty()){
                 break;
             }
-            for(User u : findUser){
+            // 각 job에 대한 유저찾기 (string 유저 2, ios 유저 2 이렇게 두번 담기는 경우는 제외해줘야)
+            for(Job j : findJob){
                 if(profileRecommendResponses.size()>6){
                     break;
                 }
-                if (!Objects.equals(u.getUserId(), user.getUserId())){
-                    List<String> findUserJobList = this.getUserJobName(u.getUserId());
-                    profileRecommendResponses.add(ProfileRecommendResponse.from(u, findUserJobList));
+                User u = userJobRepository.findByJob_JobId(j.getJobId()).get(0).getUser();
+                // 중복 된 경우엔 추가하지 않음
+                if(distinctUser.contains(u))
+                    break;
+                List<String> findUserJobList = this.getUserJobName(u.getUserId());
+                profileRecommendResponses.add(ProfileRecommendResponse.from(u, findUserJobList));
+                distinctUser.add(u);
                 }
             }
-        }
+
+
         if (profileRecommendResponses.isEmpty()){
             return null;
         }
