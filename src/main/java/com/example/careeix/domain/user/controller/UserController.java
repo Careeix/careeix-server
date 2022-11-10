@@ -327,6 +327,10 @@ public class UserController {
 
         }
 
+        if (user.getStatus() ==0) {
+            userJobService.updateDeleteUserJob(user);
+        }
+
         // 회원가입 한 적 없는 경우 - 데이터 저장
         try {
             User finalUser = userService.insertUserApple(appleLoginRequest, user);
@@ -440,6 +444,10 @@ public class UserController {
         if(!Objects.equals(user.getUserNickName(), kakaoLoginRequest.getNickname())){
             userService.userNicknameDuplicateCheck(kakaoLoginRequest.getNickname());
 
+        }
+
+        if (user.getStatus() ==0) {
+            userJobService.updateDeleteUserJob(user);
         }
 
         // 회원가입 한 적 없는 경우 - 데이터 저장
