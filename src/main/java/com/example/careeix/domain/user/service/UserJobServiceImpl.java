@@ -101,6 +101,10 @@ public class UserJobServiceImpl implements UserJobService{
         List<String> distinctUserJobList = userJobList.stream().distinct().collect(Collectors.toList());
         List<ProfileRecommendResponse> profileRecommendResponses = new ArrayList<>();
 
+
+        // 다른 유저들의 상세 직무랑 비교
+//        jobRepository.findByJobName()
+
         for(String job: distinctUserJobList){
             if(profileRecommendResponses.size()>6){
                 break;
