@@ -6,10 +6,9 @@ import com.example.careeix.domain.color.service.ColorService;
 import com.example.careeix.domain.user.dto.*;
 import com.example.careeix.domain.user.entity.User;
 import com.example.careeix.domain.user.exception.*;
+import com.example.careeix.domain.user.exception.oauth2.apple.AppleFailException;
 import com.example.careeix.domain.user.exception.oauth2.kakao.*;
-import com.example.careeix.domain.user.service.OAuth2UserServiceKakao;
-import com.example.careeix.domain.user.service.UserJobService;
-import com.example.careeix.domain.user.service.UserService;
+import com.example.careeix.domain.user.service.*;
 import com.example.careeix.utils.dto.ApplicationResponse;
 import com.example.careeix.utils.exception.ApiErrorResponse;
 import com.example.careeix.utils.exception.ApplicationException;
@@ -31,6 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
+import java.io.IOException;
 import java.util.*;
 
 import static com.example.careeix.utils.ValidationRegex.isRegexNickname;
@@ -47,8 +47,13 @@ public class UserController {
 
     private final ColorService colorService;
     private final UserJobService userJobService;
+
+    private final AppleServiceImpl appleService;
     private final JwtService jwtService;
     private final OAuth2UserServiceKakao oAuth2UserServiceKakao;
+
+    private final OAuth2UserServiceApple oAuth2UserServiceApple;
+
 
 //
 //    /**
@@ -101,20 +106,18 @@ public class UserController {
 
     /**
      * 사용자 프로필 수정
-     * @param userNickname, file
+     * @param userNickname
      * @return ResponseEntity<String>
      */
-    @ApiOperation(value = "사용자 프로필 수정  - jwt 0", notes = "사용자 프로필을 수정합니다. \t\n 이미지파일: multipartfile 타입 이용, null 허용" +
-            "\t\n 저장정보 s3 주소를 풀로 저장하고 있기때문에 불러오고 저장할때 추가로 작업하실건 없습니다." +
-            "\t\n file : 이미지 파일(유저프로필이미지), userNickname : 유저 닉네임", produces = "multipart/form-data")
+    @ApiOperation(value = "사용자 프로필 수정 (닉네임)  - jwt 0", notes = "사용자 프로필을 수정합니다."+
+            "\t\n userNickname : 유저 닉네임")
     @ApiResponses(value = {
             @ApiResponse(code = 400 , message = "유효하지 않은 닉네임 입니다.(U1007) \t\n JWT 토큰이 비어있습니다.(J2001)"),
             @ApiResponse(code = 403 , message = "ACCESS-TOKEN이 맞지 않습니다.(J2002)"),
-            @ApiResponse(code = 409, message = "중복된 닉네임 입니다.(U1001)", response = ApiErrorResponse.class),
+            @ApiResponse(code = 409, message = "중복된 닉네임 입니다.(U1001) \t\n 기존 닉네임과 동일합니다(U1006)", response = ApiErrorResponse.class),
     })
-    @PostMapping("/update-profile")
-    public ApplicationResponse<MessageResponse> updateUserProfile(@RequestParam String userNickname,
-                                                    @RequestParam(required = false) MultipartFile file) {
+    @PostMapping("/update-profile-nickname")
+    public ApplicationResponse<MessageResponse> updateUserProfile(@RequestParam String userNickname) {
         if (!isRegexNickname(userNickname)) {
             throw new UserNicknameValidException();
         }
@@ -123,12 +126,40 @@ public class UserController {
         }
         long userId = jwtService.getUserId();
 
-        User user = userService.updateUserProfile(userId, userNickname, file);
+        User user = userService.updateUserProfileNickname(userId, userNickname);
+
 
         return ApplicationResponse.ok(MessageResponse.builder()
                 .message("사용자 프로필이 수정되었습니다.")
                 .build());
     }
+
+    /**
+     * 사용자 프로필 수정
+     * @param  file
+     * @return ResponseEntity<String>
+     */
+    @ApiOperation(value = "사용자 프로필 수정 (프로필 이미지)  - jwt 0", notes = "사용자 프로필을 수정합니다. \t\n 이미지파일: multipartfile 타입 이용, null 허용" +
+            "\t\n 저장정보 s3 주소를 풀로 저장하고 있기때문에 불러오고 저장할때 추가로 작업하실건 없습니다." +
+            "\t\n file : 이미지 파일(유저프로필이미지)", produces = "multipart/form-data")
+    @ApiResponses(value = {
+            @ApiResponse(code = 400 , message = "JWT 토큰이 비어있습니다.(J2001)"),
+            @ApiResponse(code = 403 , message = "ACCESS-TOKEN이 맞지 않습니다.(J2002)", response = ApiErrorResponse.class),
+    })
+    @PostMapping("/update-profile-file")
+    public ApplicationResponse<MessageResponse> updateUserProfileFile(
+                                                                  @RequestParam(required = false) MultipartFile file) {
+
+        long userId = jwtService.getUserId();
+
+        User user = userService.updateUserProfileFile(userId, file);
+
+
+        return ApplicationResponse.ok(MessageResponse.builder()
+                .message("사용자 프로필이 수정되었습니다.")
+                .build());
+    }
+
 
 
     /**
@@ -228,6 +259,117 @@ public class UserController {
     /**
      * OAuth2
      */
+    /**
+     * 애플 로그인 API
+     * [POST] api/v1/users/check-login-apple
+     * @return ResponseEntity
+    \     */
+    @ApiOperation(value = "애플 로그인 - 첫번째 호출", notes = "userId 0 or jwt null : 추가정보 받는 apple-login api," +
+            "\t\n requestBody : 필수, 토큰에 따른 에러처리, responseBody : 사용자 정보 조회 note 참조" +
+            "\t\n 애플 로그인 response에 따른 에러처리")
+    @PostMapping("/check-login-apple")
+    @ApiResponses(value = {
+            @ApiResponse(code = 405 , message = "애플 로그인에 실패했습니다.(A2001)"),
+            @ApiResponse(code = 500 , message = "유효한 RSA값을 찾지 못했습니다.(A2002)", response = ApiErrorResponse.class),
+    })
+    public ApplicationResponse<LoginResponse> createAppleUser(@Valid @RequestBody AppleAccessRequest appleAccessRequest) {
+        User user = oAuth2UserServiceApple.validateAppleAccessToken(appleAccessRequest.getIdentityToken());
+        if (user.getStatus() == 0){
+            return ApplicationResponse.ok(LoginResponse.builder()
+                    .message("회원가입을 진행해주세요, apple-login api에서 추가정보를 입력해주세요")
+                    .build());
+        }
+        if (user.getUserJob() == null) {
+            return ApplicationResponse.ok(LoginResponse.builder()
+                    .message("회원가입을 진행해주세요, apple-login api에서 추가정보를 입력해주세요")
+                    .build());
+        }
+        return getLoginResponseResponseEntity(user);
+    }
+
+    /**
+     * 애플 로그인 API
+     * [POST] api/v1/users/apple-login
+     * @param appleLoginRequest
+     * @return ResponseEntity
+    \     */
+    @ApiOperation(value = "애플 로그인 - 추가정보 입력 후 호출", notes = "회원가입 후 로그인 - 추가 정보 받고 호출하는 api, 연차 0,1,2,3 으로 전달해주세요" +
+            "\t\n 위와 같은 애플 api를 이용하고 있는데 위에서 검증을 하고 넘기기 때문에 그부분에 대한 에러코드는 생략했습니다." +
+            "\t\n requestBody : 모두 필수값, 조건 : [세부직무 1~3개, 년차(0~3)](조건x : apiError), responseBody : 사용자 정보 조회 note 참조" +
+            "\t\n 닉네임 패턴, 닉네임 존재 여부, 가입 여부, 중복된 세부 직무 여부")
+    @PostMapping("/apple-login")
+    @ApiResponses(value = {
+            @ApiResponse(code = 400 , message = "유효하지 않은 닉네임 입니다.(U1007)"),
+            @ApiResponse(code = 409, message = "중복된 닉네임 입니다.(U1001) \t\n 해당 유저는 이미 가입한 유저입니다.(U1004) \t\n 중복된 세부직무가 있습니다.(U1005)", response = ApiErrorResponse.class)
+    })
+    public ApplicationResponse<LoginResponse> loginKakaoUser(@Valid @RequestBody AppleLoginRequest appleLoginRequest) {
+        User user = oAuth2UserServiceApple.validateAppleAccessToken(appleLoginRequest.getIdentityToken());
+        if(user.getSocialId() == null){
+            throw new AppleFailException();
+        }
+
+        if (!isRegexNickname(appleLoginRequest.getNickname())) {
+            throw new UserNicknameValidException();
+        }
+
+        if (isRegexNicknameNum(appleLoginRequest.getNickname())) {
+            throw new UserNicknameValidException();
+        }
+
+        if (user.getUserJob() != null && user.getStatus() ==1) {
+            throw new UserDuplicateException();
+        }
+
+        this.checkDuplicateJob(appleLoginRequest.getUserDetailJob());
+
+        if(!Objects.equals(user.getUserNickName(), appleLoginRequest.getNickname())){
+            userService.userNicknameDuplicateCheck(appleLoginRequest.getNickname());
+
+        }
+
+        if (user.getStatus() ==0) {
+            userJobService.updateDeleteUserJob(user);
+        }
+
+        // 회원가입 한 적 없는 경우 - 데이터 저장
+        try {
+            User finalUser = userService.insertUserApple(appleLoginRequest, user);
+            userJobService.createUserJob(appleLoginRequest.getUserDetailJob(), finalUser);
+            User u = colorService.getColorName(finalUser);
+            return getLoginResponseResponseEntity(u);
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+
+        // 로그인 정보 불러오기
+    }
+
+//    /**
+//     * 애플 탈퇴 API
+//     * [POST] api/v1/users/apple-withdraw
+//     * @return ResponseEntity
+//    \     */
+//    @ApiOperation(value = "애플 회원 탈퇴 - jwt 0 -", notes = "회원 탈퇴를 합니다. 애플 필수 사항, 탈퇴시 다시 로그인 - authorizationCode 전달" +
+//            "userSocialProvider가 1인사람만 이걸로 !")
+//    @PostMapping("/apple-withdraw")
+//    @ApiResponses(value = {
+//            @ApiResponse(code = 400 , message = "JWT 토큰이 비어있습니다.(J2001)"),
+//            @ApiResponse(code = 403 , message = "ACCESS-TOKEN이 맞지 않습니다.(J2002)", response = ApiErrorResponse.class),
+//    })
+//    public ApplicationResponse<MessageResponse> withdrawAppleUser(@Valid @RequestBody AppleWithdrawRequest appleWithdrawRequest) throws IOException {
+////        long userId = jwtService.getUserId();
+////        userService.withdrawUser(userId);
+////        User user = userService.getUserByUserId(userId);
+//
+//        appleService.revoke(appleWithdrawRequest.getAuthorizationCode());
+//
+//        return ApplicationResponse.ok(MessageResponse.builder()
+//                .message("회원 탈퇴가 완료되었습니다.")
+//                .build());
+//    }
+
 
     /**
      * 카카오 로그인 API
@@ -249,6 +391,11 @@ public class UserController {
 //        if(user.getSocialId() == null){
 //            throw new KakaoFailException();
 //        }
+        if (user.getStatus() == 0){
+            return ApplicationResponse.ok(LoginResponse.builder()
+                    .message("회원가입을 진행해주세요, kakao-login api에서 추가정보를 입력해주세요")
+                    .build());
+        }
         // 회원가입 한 적 없는 경우 - 첫번째 호출
         if (user.getUserJob() == null) {
             return ApplicationResponse.ok(LoginResponse.builder()
@@ -288,7 +435,7 @@ public class UserController {
             throw new UserNicknameValidException();
         }
 
-        if (user.getUserJob() != null) {
+        if (user.getUserJob() != null && user.getStatus() ==1) {
             throw new UserDuplicateException();
         }
 
@@ -297,6 +444,10 @@ public class UserController {
         if(!Objects.equals(user.getUserNickName(), kakaoLoginRequest.getNickname())){
             userService.userNicknameDuplicateCheck(kakaoLoginRequest.getNickname());
 
+        }
+
+        if (user.getStatus() ==0) {
+            userJobService.updateDeleteUserJob(user);
         }
 
         // 회원가입 한 적 없는 경우 - 데이터 저장

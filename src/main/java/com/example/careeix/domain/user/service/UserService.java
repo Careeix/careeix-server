@@ -1,5 +1,6 @@
 package com.example.careeix.domain.user.service;
 
+import com.example.careeix.domain.user.dto.AppleLoginRequest;
 import com.example.careeix.domain.user.dto.KakaoLoginRequest;
 import com.example.careeix.domain.user.dto.UserInfoRequest;
 import com.example.careeix.domain.user.entity.User;
@@ -15,11 +16,14 @@ public interface UserService {
 
     User insertUser(@Valid KakaoLoginRequest kakaoLoginRequest, User user);
 
+    User insertUserApple(@Valid AppleLoginRequest appleLoginRequest, User user);
+
 
     User getUserByUserId(Long userId);
 
 
-    User updateUserProfile(long userId, String nickName, MultipartFile file);
+    User updateUserProfileNickname(long userId, String nickName);
+    User updateUserProfileFile(long userId, MultipartFile file);
 
     User withdrawUser(long userId);
 

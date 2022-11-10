@@ -1,108 +1,124 @@
 package com.example.careeix.domain.user.service;
 
 import com.example.careeix.domain.user.entity.User;
-import com.example.careeix.domain.user.exception.oauth2.kakao.*;
+import com.example.careeix.domain.user.exception.oauth2.apple.AppleFailException;
+import com.example.careeix.domain.user.exception.oauth2.apple.AppleUnAvaliableFailException;
 import com.example.careeix.domain.user.repository.UserRepository;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.json.JsonParser;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.math.BigInteger;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URL;
-import java.util.HashMap;
+import java.security.KeyFactory;
+import java.security.PublicKey;
+import java.security.spec.RSAPublicKeySpec;
+import java.util.Base64;
+import java.util.Objects;
 
 @Service
+
 @RequiredArgsConstructor
 public class OAuth2UserServiceAppleImpl implements OAuth2UserServiceApple {
 
-    private final UserRepository userRepository;
-
-    @Value("${spring.security.oauth2.client.provider.kakao.user-info-uri}")
-    private String kakaoUserInfoUrl;
     /**
-     * kakao login or sign up
+     * 1. apple - 공개키 3개
+     * 2. 내가 클라에서 가져온 token String과 비교해서 써야할 공개키 확인 (kid,alg 값 같은 것)
+     * 3. 공개키 재료들 -> 공개키 생성, 공개키 -> JWT토큰 부분의 바디 부분을 decode -> 유저 정보
      */
 
-    @Override
-    public User validateAppleAccessToken(String accessToken) {
-        HashMap<String, Object> kakaoUserInfo = getAppleUserInfo(accessToken);
-        return saveOrGetAppleUser(kakaoUserInfo);
-    }
+    private final UserRepository userRepository;
 
-    private HashMap<String, Object> getAppleUserInfo(String accessToken) {
 
-        HashMap<String, Object> resultMap = new HashMap<>();
-
-        HttpURLConnection conn = null;
+    public User validateAppleAccessToken(String idToken) {
+        StringBuffer result = new StringBuffer();
         try {
-            URL url = new URL(kakaoUserInfoUrl);
-            conn = (HttpURLConnection) url.openConnection();
-            try {
+            URL url = new URL("https://appleid.apple.com/auth/keys");
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 
-                conn.setRequestMethod("GET");
+            String line = "";
 
-                //요청에 필요한 Header에 포함될 내용
-                conn.setRequestProperty("Authorization", "Bearer " + accessToken);
-
-                int responseCode = conn.getResponseCode();
-
-                if (responseCode == HttpURLConnection.HTTP_OK) {
-                    BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-                    String br_line = "";
-                    String result = "";
-
-                    while ((br_line = br.readLine()) != null) {
-                        result += br_line;
-                    }
-                    System.out.println("response:" + result);
-
-
-                    JsonParser parser = new JsonParser();
-                    JsonElement element = parser.parse(result);
-
-                    JsonObject properties = element.getAsJsonObject().get("properties").getAsJsonObject();
-                    JsonObject kakao_account = element.getAsJsonObject().get("kakao_account").getAsJsonObject();
-
-                    String id = element.getAsJsonObject().get("id").getAsString();
-                    String email = kakao_account.getAsJsonObject().get("email").getAsString();
-
-                    resultMap.put("id", id);
-                    resultMap.put("email", email);
-
-                    System.out.println("결과 : " + resultMap);
-                    br.close();
-                } else if (responseCode == HttpURLConnection.HTTP_UNAUTHORIZED) {
-                    throw new KakaoUnAuthorizedFaildException();
-                } else {
-                    throw new KakaoFailException();
-                }
-            }catch (IOException e) {
-                throw new KakaoApiResponseException();
-            }finally {
-                conn.disconnect();
+            while ((line = br.readLine()) != null) {
+                result.append(line);
             }
-        } catch (MalformedURLException e) {
-            throw new KakaoUrlException(kakaoUserInfoUrl);
-        } catch (ProtocolException e) {
-            throw new KakaoProtocolException();
         } catch (IOException e) {
-            throw new KakaoApiResponseException();
+            System.out.println("IOEx");
+            throw new AppleFailException();
         }
-        return resultMap;
+        com.google.gson.JsonParser parser = new com.google.gson.JsonParser();
+        JsonObject keys = (JsonObject) parser.parse(result.toString());
+        JsonArray keyArray = (JsonArray) keys.get("keys");
+
+
+        //클라이언트로부터 가져온 identity token String decode
+        String[] decodeArray = idToken.split("\\.");
+        String header = new String(Base64.getDecoder().decode(decodeArray[0]));
+
+        //apple에서 제공해주는 kid값과 일치하는지 알기 위해
+        JsonElement kid = ((JsonObject) parser.parse(header)).get("kid");
+        JsonElement alg = ((JsonObject) parser.parse(header)).get("alg");
+
+        //써야하는 Element (kid, alg 일치하는 element)
+        JsonObject avaliableObject = null;
+        for (int i = 0; i < keyArray.size(); i++) {
+            JsonObject appleObject = (JsonObject) keyArray.get(i);
+            JsonElement appleKid = appleObject.get("kid");
+            JsonElement appleAlg = appleObject.get("alg");
+
+            if (Objects.equals(appleKid, kid) && Objects.equals(appleAlg, alg)) {
+                avaliableObject = appleObject;
+                break;
+            }
+        }
+
+        //일치하는 공개키 없음
+        if (ObjectUtils.isEmpty(avaliableObject))
+            throw new AppleUnAvaliableFailException();
+
+        PublicKey publicKey = this.getPublicKey(avaliableObject);
+
+        //--> 여기까지 검증
+
+        Claims userInfo = Jwts.parser().setSigningKey(publicKey).parseClaimsJws(idToken).getBody();
+        JsonObject userInfoObject = (JsonObject) parser.parse(new Gson().toJson(userInfo));
+        JsonElement appleAlg = userInfoObject.get("sub");
+        String socialId = appleAlg.getAsString();
+
+        return userRepository.findBySocialId(socialId).orElse(User.toEntityOfAppleUser(socialId));
+
     }
 
-        private User saveOrGetAppleUser(HashMap<String, Object> kakaoUserInfo) {
-        // 회원가입을 한 유저면 반환, 아니면 셋팅
-        User user = userRepository.findBySocialId((String) kakaoUserInfo.get("id"))
-                .orElse(User.toEntityOfKakaoUser(kakaoUserInfo));
-        return user;
+    public PublicKey getPublicKey(JsonObject object) {
+        String nStr = object.get("n").toString();
+        String eStr = object.get("e").toString();
+
+        byte[] nBytes = Base64.getUrlDecoder().decode(nStr.substring(1, nStr.length() - 1));
+        byte[] eBytes = Base64.getUrlDecoder().decode(eStr.substring(1, eStr.length() - 1));
+
+        BigInteger n = new BigInteger(1, nBytes);
+        BigInteger e = new BigInteger(1, eBytes);
+
+        try {
+            RSAPublicKeySpec publicKeySpec = new RSAPublicKeySpec(n, e);
+            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+            PublicKey publicKey = keyFactory.generatePublic(publicKeySpec);
+            return publicKey;
+        } catch (Exception exception) {
+            throw new AppleUnAvaliableFailException();
+        }
     }
 }

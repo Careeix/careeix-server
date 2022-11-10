@@ -11,6 +11,8 @@ public interface UserJobService {
 
     void createUserJob(List<String> jobNameList, User user);
 
+    void updateDeleteUserJob(User user);
+
     void updateUserJob(User user, List<String> jobNameList);
 
     List<ProfileRecommendResponse> getProfile(User user);

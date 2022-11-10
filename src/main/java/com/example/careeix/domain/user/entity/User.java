@@ -11,6 +11,9 @@ import java.util.HashMap;
 import java.util.List;
 
 
+
+import static com.example.careeix.domain.user.constant.UserConstants.EOAuth2UserServiceImpl.*;
+import static com.example.careeix.domain.user.constant.UserConstants.ESocialProvider.eApple;
 import static com.example.careeix.domain.user.constant.UserConstants.ESocialProvider.eKakao;
 
 @Entity
@@ -53,6 +56,13 @@ public class User extends BaseEntity {
         return User.builder()
                 .socialId((String) userInfo.get("id"))
                 .userSocialProvider(eKakao.ordinal())
+                .build();
+    }
+
+    public static User toEntityOfAppleUser(String socialId) {
+        return User.builder()
+                .socialId(socialId)
+                .userSocialProvider(eApple.ordinal())
                 .build();
     }
 

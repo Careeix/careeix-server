@@ -1,11 +1,13 @@
 package com.example.careeix.domain.user.service;
 
 
+import com.example.careeix.domain.user.dto.AppleLoginRequest;
 import com.example.careeix.domain.user.dto.KakaoLoginRequest;
 import com.example.careeix.domain.user.dto.UserInfoRequest;
 import com.example.careeix.domain.user.entity.User;
 import com.example.careeix.domain.user.exception.NotFoundUserException;
 import com.example.careeix.domain.user.exception.UserNicknameDuplicateException;
+import com.example.careeix.domain.user.exception.UserUpdateNicknameDuplicateException;
 import com.example.careeix.domain.user.repository.UserRepository;
 import com.example.careeix.utils.file.service.AwsS3Service;
 import lombok.RequiredArgsConstructor;
@@ -40,19 +42,33 @@ public class UserServiceImpl implements UserService {
     @Override
     public User insertUser(KakaoLoginRequest kakaoLoginRequest, User kakaoUser) {
         User user = kakaoLoginRequest.toEntity(kakaoUser.getUserId(), kakaoUser);
+        user.setStatus(1);
+        return userRepository.save(user);
+    }
 
+    @Override
+    public User insertUserApple(AppleLoginRequest appleLoginRequest, User appleUser) {
+        User user = appleLoginRequest.toEntity(appleUser.getUserId(), appleUser);
+        user.setStatus(1);
         return userRepository.save(user);
     }
 
 
     @Override
-    public User updateUserProfile(long userId, String nickName, MultipartFile file) {
+    public User updateUserProfileNickname(long userId, String nickName) {
         User user = this.getUserByUserId(userId);
-
-        if (!user.getUserNickName().equals(nickName))
+        if (user.getUserNickName().equals(nickName))
+            throw new UserUpdateNicknameDuplicateException();
+        else
             this.userNicknameDuplicateCheck(nickName);
 
         user.setUserNickName(nickName);
+
+        return userRepository.save(user);
+    }
+
+    public User updateUserProfileFile(long userId, MultipartFile file) {
+        User user = this.getUserByUserId(userId);
 
         if (file != null) {
             String filename = awsS3Service.uploadImage(file);
@@ -62,6 +78,7 @@ public class UserServiceImpl implements UserService {
 
         return userRepository.save(user);
     }
+
 
 
     /**
