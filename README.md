@@ -1,4 +1,4 @@
-# <p align="center"> :books: Careeix :bl_cash:<p>
+# <p align="center"> :books: Careeix <p>
 
 <p align="center"><img src=""/><p>
   
