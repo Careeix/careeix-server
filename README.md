@@ -15,7 +15,7 @@
 
 ### <p align="center"> Back-end </p>
 
-<p align="center"><img src="https://user-images.githubusercontent.com/61726631/171079154-95e3b822-0c22-413d-b481-25af3b94e901.jpg"/><p>
+<p align="center"><img src="https://user-images.githubusercontent.com/75851930/201430520-dd03c4f8-1859-4719-ac1b-814ea6bbe2f9.jpg"/><p>
 
 ## <p align="center"> 🏗 Project Architecture </p>
 
