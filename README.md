@@ -3,7 +3,7 @@
 <p align="center"><img src=""/><p>
   
 <div align="center"><h2>나만의 커리어 관리 플랫폼, <br>
-                                   내가 경험한 일을 자세히 기록, <br>
+                                   경험한 일을 기록, <br>
                                     커리어 프로필과 노하우를 공유 <br></h2></div>
                                     
 <div align="center"> 
