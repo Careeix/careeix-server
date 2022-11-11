@@ -2,9 +2,9 @@
 
 <p align="center"><img src=""/><p>
   
-<div align="center"><h2>나만의 커리어 관리 플랫폼, <br>
+<div align="center"><h2>커리어 관리 플랫폼, <br>
                                    경험한 일을 기록, <br>
-                                    커리어 프로필과 노하우를 공유 <br></h2></div>
+                                    노하우를 공유 <br></h2></div>
                                     
 <div align="center"> 
 </div>     
