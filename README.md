@@ -30,6 +30,6 @@
 ### Backend
 
 <p align="center"> |원도혜|정연수| <p>
-<p align="center"> |:-:|:-:|<p>
+|:-:|:-:|
 <p align="center"> |<img src="https://avatars.githubusercontent.com/u/75851930?v=4" alt="d00hye" width="100" height="100">|<img src="https://avatars.githubusercontent.com/u/54070738?v=4" alt="yawnsoo" width="100" height="100">|<p>
 <p align="center"> |[d00hye](https://github.com/d00hye)|[yawnsoo](https://github.com/yawnsoo)|<p>
