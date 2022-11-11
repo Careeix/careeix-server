@@ -1,6 +1,6 @@
 # <p align="center"> Careeix <p>
 
-<p align="center"><img src="https://user-images.githubusercontent.com/61726631/168746638-4f9c02ca-c42e-4ed7-8247-a65e7d7d7892.jpg"/><p>
+<p align="center"><img src=""/><p>
   
 <div align="center"><h2>1, <br>
                                    2, <br>
