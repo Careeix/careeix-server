@@ -20,7 +20,7 @@
 
 ## <p align="center"> 🏗 Project Architecture </p>
 
-<p align="center"><img src="https://user-images.githubusercontent.com/61726631/171079373-53056971-ff41-4531-a730-d1e01c8e23e1.jpg"/><p>
+<p align="center"><img src="https://user-images.githubusercontent.com/75851930/201431259-7fda3360-5947-4487-a6de-63924c80668a.jpg"/><p>
 
 ## <p align="center"> 🚀 Back-end CI/CD </p>
 
