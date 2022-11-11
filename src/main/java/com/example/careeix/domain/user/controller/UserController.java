@@ -99,6 +99,8 @@ public class UserController {
     })
     public ApplicationResponse<InfoResponse> getUserProfile(@PathVariable long userId) {
         User user = userService.getUserByUserId(userId);
+        String jwt = jwtService.createJwt(user.getUserId());
+        System.out.println(jwt);
         return getInfoResponseResponseEntity(user);
     }
 
