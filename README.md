@@ -13,15 +13,13 @@
 
 ## <p align="center"> 🛠 Tech Stacks </p>
 
-### <p align="center"> Back-end </p>
-
 <p align="center"><img src="https://user-images.githubusercontent.com/75851930/201431259-7fda3360-5947-4487-a6de-63924c80668a.jpg"/><p>
 
 ## <p align="center"> 🏗 Project Architecture </p>
 
 <p align="center"><img src="https://user-images.githubusercontent.com/75851930/201436148-354a54f0-3d07-4cbe-adf9-8fe32784e870.jpg"/><p>
 
-## <p align="center"> 🚀 Back-end CI/CD </p>
+## <p align="center"> 🚀 CI/CD </p>
 
 <p align="center"><img src="https://user-images.githubusercontent.com/61726631/168770122-3a8965c6-130d-4d72-b258-5ff6287bcd54.jpg"/><p>
   
