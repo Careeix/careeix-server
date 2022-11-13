@@ -4,12 +4,14 @@ import com.example.careeix.config.BaseEntity;
 import com.example.careeix.domain.project.entity.Project;
 import com.example.careeix.domain.report.entity.ReportUser;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.validator.constraints.br.CPF;
 
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-
 
 
 import static com.example.careeix.domain.user.constant.UserConstants.EOAuth2UserServiceImpl.*;

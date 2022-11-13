@@ -99,6 +99,8 @@ public class UserController {
     })
     public ApplicationResponse<InfoResponse> getUserProfile(@PathVariable long userId) {
         User user = userService.getUserByUserId(userId);
+        String jwt = jwtService.createJwt(user.getUserId());
+        System.out.println(jwt);
         return getInfoResponseResponseEntity(user);
     }
 
@@ -147,7 +149,7 @@ public class UserController {
             @ApiResponse(code = 403 , message = "ACCESS-TOKEN이 맞지 않습니다.(J2002)", response = ApiErrorResponse.class),
     })
     @PostMapping("/update-profile-file")
-    public ApplicationResponse<MessageResponse> updateUserProfileFile(
+    public ApplicationResponse<ProfileImageModifyResponse> updateUserProfileFile(
                                                                   @RequestParam(required = false) MultipartFile file) {
 
         long userId = jwtService.getUserId();
@@ -155,7 +157,8 @@ public class UserController {
         User user = userService.updateUserProfileFile(userId, file);
 
 
-        return ApplicationResponse.ok(MessageResponse.builder()
+        return ApplicationResponse.ok(ProfileImageModifyResponse.builder()
+                .userProfileImg(user.getUserProfileImg())
                 .message("사용자 프로필이 수정되었습니다.")
                 .build());
     }
@@ -346,18 +349,14 @@ public class UserController {
         // 로그인 정보 불러오기
     }
 
-//    /**
-//     * 애플 탈퇴 API
-//     * [POST] api/v1/users/apple-withdraw
-//     * @return ResponseEntity
-//    \     */
+    /**
+     * 애플 탈퇴 API
+     * [POST] api/v1/users/apple-withdraw
+     * @return ResponseEntity
+    \     */
 //    @ApiOperation(value = "애플 회원 탈퇴 - jwt 0 -", notes = "회원 탈퇴를 합니다. 애플 필수 사항, 탈퇴시 다시 로그인 - authorizationCode 전달" +
 //            "userSocialProvider가 1인사람만 이걸로 !")
 //    @PostMapping("/apple-withdraw")
-//    @ApiResponses(value = {
-//            @ApiResponse(code = 400 , message = "JWT 토큰이 비어있습니다.(J2001)"),
-//            @ApiResponse(code = 403 , message = "ACCESS-TOKEN이 맞지 않습니다.(J2002)", response = ApiErrorResponse.class),
-//    })
 //    public ApplicationResponse<MessageResponse> withdrawAppleUser(@Valid @RequestBody AppleWithdrawRequest appleWithdrawRequest) throws IOException {
 ////        long userId = jwtService.getUserId();
 ////        userService.withdrawUser(userId);

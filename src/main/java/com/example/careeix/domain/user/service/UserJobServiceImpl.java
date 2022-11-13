@@ -114,6 +114,7 @@ public class UserJobServiceImpl implements UserJobService{
         List<ProfileRecommendResponse> profileRecommendResponses = new ArrayList<>();
         List<User> distinctUser = new ArrayList<>();
         distinctUser.add(user);
+        System.out.println(distinctUserJobList);
 
         // 사용자의 세무직무 회문
         for(String job: distinctUserJobList){
@@ -122,6 +123,11 @@ public class UserJobServiceImpl implements UserJobService{
             }
             // 사용자 세부직무와 같은 유저를 찾기 - string이면 string과 같은 Job여러개가 담김 각각은 당연히 유저가다름
             List<Job> findJob = jobRepository.findByJobName(job);
+            // 42, 146, 74
+//            for(Job j : findJob){
+//                System.out.print(j.getJobId()+ " ");
+//            }
+
 //            List<User> findUser = userRepository.findByUserJob(job);
             // 사용자 세부 직무랑 같은 다른 유저가 없으면 다른 세부직무로 돌리기
             if(findJob.isEmpty()){
@@ -133,12 +139,15 @@ public class UserJobServiceImpl implements UserJobService{
                     break;
                 }
                 User u = userJobRepository.findByJob_JobId(j.getJobId()).get(0).getUser();
+//                System.out.println("User "+u.getUserId());
                 // 중복 된 경우엔 추가하지 않음
-                if(distinctUser.contains(u))
-                    break;
                 List<String> findUserJobList = this.getUserJobName(u.getUserId());
-                profileRecommendResponses.add(ProfileRecommendResponse.from(u, findUserJobList));
-                distinctUser.add(u);
+
+                if(!distinctUser.contains(u)) {
+                    profileRecommendResponses.add(ProfileRecommendResponse.from(u, findUserJobList));
+                    distinctUser.add(u);
+                }
+
                 }
             }
 
