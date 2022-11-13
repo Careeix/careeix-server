@@ -2,6 +2,7 @@ package com.example.careeix.domain.report;
 
 import com.example.careeix.config.BaseException;
 import com.example.careeix.config.BaseResponse;
+import com.example.careeix.domain.project.dto.PostProjectResponse;
 import com.example.careeix.domain.report.dto.ReportUserResponse;
 import com.example.careeix.domain.report.service.ReportService;
 import com.example.careeix.domain.user.entity.User;
@@ -39,6 +40,7 @@ public class ReportController {
                                                     "파라미터로 피신고자(신고를 당하는 유저)의 id를 입력합니다.\n" +
                                                     "이미 신고자가 동일한 피신고자를 신고할 경우, 신고가 취소됩니다.")
     @ApiResponses({
+            @ApiResponse(code = 200, message = "200 response", response = ReportUserResponse.class),
             @ApiResponse(code = 400, message =
                             "2011 : 파라미터 값(유저ID)을 입력해주세요\n" +
                             "2002 : 유효하지 않은 JWT입니다.\n" +

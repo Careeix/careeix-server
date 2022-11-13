@@ -8,6 +8,7 @@ import com.example.careeix.domain.project.entity.Project;
 import com.example.careeix.domain.project.entity.ProjectDetail;
 import com.example.careeix.domain.project.entity.ProjectMapping;
 import com.example.careeix.domain.project.service.ProjectService;
+import com.example.careeix.domain.user.dto.InfoResponse;
 import com.example.careeix.domain.user.service.UserService;
 import com.example.careeix.utils.dto.ApplicationResponse;
 import com.example.careeix.utils.exception.ApiErrorResponse;
@@ -78,6 +79,7 @@ public class ProjectController {
             " is_proceed의 default 값은 (0 : 진행 종료)입니다.\n"+
             "projectNotes가 입력 될 경우 projectNotes의 content는 Mandatory입니다.")
     @ApiResponses({
+            @ApiResponse(code = 200, message = "200 response", response = PostProjectResponse.class),
             @ApiResponse(code = 400, message =
                     "2002 : 유효하지 않은 JWT입니다.\n" +
                     "2020 : 프로젝트 제목을 입력해주세요. \n" +
@@ -168,6 +170,7 @@ public class ProjectController {
     "파라미터로 user의 id를 받으며, 필수로 입력해야합니다. (예. ~project/by-user?id=1)\n" +
     "순서는 start_date기준 내림차순입니다.(최근에 시작한 프로젝트일 수록 위)")
     @ApiResponses({
+            @ApiResponse(code = 200, message = "200 response", response = GetProjectResponse.class),
             @ApiResponse(code = 400, message =
                     "2011 : 파라미터 값(유저ID)을 입력해주세요\n" +
                     "U1003 : 해당 아이디를 찾을 수 없습니다.",response = ApiErrorResponse.class)
@@ -208,6 +211,7 @@ public class ProjectController {
      */
     @ApiOperation(value = "프로젝트 조회(프로젝트 ID별)", notes = "프로젝트 ID에 해당하는 프로젝트, 목차(ProjectDeatils)리스트, 노트(ProjectNotes)리스트를 조회 할 수 있습니다.")
     @ApiResponses({
+            @ApiResponse(code = 200, message = "200 response", response = PostProjectResponse.class),
             @ApiResponse(code = 400, message =
                     "2031 : 존재하지 않는 프로젝트 ID입니다. 프로젝트 ID를 다시 확인해주세요\n" +
                     "2032 : 이미 삭제된 프로젝트 ID입니다. 프로젝트 ID를 다시 확인해주세요",response = ApiErrorResponse.class)
@@ -256,6 +260,7 @@ public class ProjectController {
     @ApiOperation(value = "프로젝트 삭제", notes = "project_id에 해당하는 프로젝트, 프로젝트 목차, 프로젝트 노트 들의 status를 모두 0으로 바꿉니다.\n" +
     "해당 프로젝트를 작성한 user의 JWT를 필수로 입력해야합니다.")
     @ApiResponses({
+            @ApiResponse(code = 200, message = "200 response", response = String.class),
             @ApiResponse(code = 400, message =
                     "2002 : 유효하지 않은 JWT입니다.\n" +
                     "2003 : 권한이 없는 유저의 접근입니다.\n" +
@@ -313,6 +318,7 @@ public class ProjectController {
             " is_proceed의 default 값은 (0 : 진행 종료)입니다.\n"+
             "projectNotes가 입력 될 경우 projectNotes의 content는 Mandatory입니다.")
     @ApiResponses({
+            @ApiResponse(code = 200, message = "200 response", response = PostProjectResponse.class),
             @ApiResponse(code = 400, message =
                     "2002 : 유효하지 않은 JWT입니다.\n" +
                     "2020 : 프로젝트 제목을 입력해주세요. \n" +
