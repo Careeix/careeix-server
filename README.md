@@ -1,7 +1,5 @@
 # <p align="center"> :books: Careeix <p>
 
-<p align="center"><img src=""/><p>
-  
 <div align="center"><h2>커리어 관리 플랫폼 <br>
                                    경험한 일을 기록, 노하우를 공유 <br></h2></div>
                                     
