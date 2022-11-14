@@ -18,7 +18,7 @@ public interface ProjectRepository  extends JpaRepository<Project, Long> {
 //    @Query("select p from Project p where p.user.userId = ?1 and p.status=1 order by p.startDate DESC")
 //    List<Project> findProjectsByUser_UserId(Long userId);
 
-    @Query("select p from Project p where p.user.userId = ?1 and p.status=1 order by p.startDate DESC")
+    @Query("select p from Project p where p.user.userId = ?1 and p.status=1 order by p.startDate DESC, p.projectId DESC")
     List<Project> findAllByUser_UserId(Long userId);
 
 //    @Query("select User from Project p where p.projectId = ?1 and p.user.status=1")

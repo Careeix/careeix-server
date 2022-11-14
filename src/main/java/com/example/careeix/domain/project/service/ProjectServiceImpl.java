@@ -127,7 +127,7 @@ public class ProjectServiceImpl implements ProjectService {
 
             Project p = projectRepository.findById(projectId).get();
 
-            List<PostProjectNote> ppnList = new ArrayList<>();
+
             List<PostProjectDetail> ppdList = new ArrayList<>();
 
 
@@ -137,6 +137,7 @@ public class ProjectServiceImpl implements ProjectService {
 
                 for (ProjectDetailMapping pdm : projectMapping.getProjectDetails()) {
 
+                    List<PostProjectNote> ppnList = new ArrayList<>();
                     for (ProjectNoteMapping pdn : pdm.getProjectNotes()) {
                         PostProjectNote ppn = new PostProjectNote(pdn.getContent());
                         ppnList.add(ppn);
