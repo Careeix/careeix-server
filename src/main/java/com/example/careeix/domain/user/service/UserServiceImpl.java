@@ -116,6 +116,13 @@ public class UserServiceImpl implements UserService {
 
     }
 
+    @Override
+    public User deleteUserProfileFile(long userId) {
+        User user = this.getUserByUserId(userId);
+        user.setUserProfileImg(null);
+        return userRepository.save(user);
+    }
+
 }
 
 

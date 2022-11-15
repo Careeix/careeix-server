@@ -147,6 +147,7 @@ public class UserController {
     @ApiResponses(value = {
             @ApiResponse(code = 400 , message = "JWT 토큰이 비어있습니다.(J2001)"),
             @ApiResponse(code = 403 , message = "ACCESS-TOKEN이 맞지 않습니다.(J2002)", response = ApiErrorResponse.class),
+
     })
     @PostMapping("/update-profile-file")
     public ApplicationResponse<ProfileImageModifyResponse> updateUserProfileFile(
@@ -163,7 +164,26 @@ public class UserController {
                 .build());
     }
 
+    @ApiOperation(value = "사용자 프로필 삭제 (프로필 이미지)  - jwt 0", notes = "사용자 프로필을 삭제합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 400 , message = "JWT 토큰이 비어있습니다.(J2001)"),
+            @ApiResponse(code = 403 , message = "ACCESS-TOKEN이 맞지 않습니다.(J2002)", response = ApiErrorResponse.class),
 
+    })
+    @PostMapping("/delete-profile-file")
+    public ApplicationResponse<ProfileImageModifyResponse> deleteUserProfileFile(
+            @RequestParam(required = false) MultipartFile file) {
+
+        long userId = jwtService.getUserId();
+
+        User user = userService.deleteUserProfileFile(userId);
+
+
+        return ApplicationResponse.ok(ProfileImageModifyResponse.builder()
+                .userProfileImg(user.getUserProfileImg())
+                .message("사용자 프로필이 삭제되었습니다.")
+                .build());
+    }
 
     /**
      * 사용자 정보 수정
