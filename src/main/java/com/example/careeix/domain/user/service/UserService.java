@@ -28,4 +28,6 @@ public interface UserService {
     User withdrawUser(long userId);
 
     User updateUserInfo(long userId, UserInfoRequest userInfoRequest);
+
+    User deleteUserProfileFile(long userId);
 }
