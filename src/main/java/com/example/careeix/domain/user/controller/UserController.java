@@ -172,7 +172,7 @@ public class UserController {
     })
     @PostMapping("/delete-profile-file")
     public ApplicationResponse<ProfileImageModifyResponse> deleteUserProfileFile(
-            @RequestParam(required = false) MultipartFile file) {
+    ) {
 
         long userId = jwtService.getUserId();
 
