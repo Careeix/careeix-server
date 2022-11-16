@@ -143,7 +143,7 @@ public class UserJobServiceImpl implements UserJobService{
                 // 중복 된 경우엔 추가하지 않음
                 List<String> findUserJobList = this.getUserJobName(u.getUserId());
 
-                if(!distinctUser.contains(u)) {
+                if(!distinctUser.contains(u) && u.getStatus()==1) {
                     profileRecommendResponses.add(ProfileRecommendResponse.from(u, findUserJobList));
                     distinctUser.add(u);
                 }
