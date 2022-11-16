@@ -272,6 +272,20 @@ public class ProjectServiceImpl implements ProjectService {
         }
     }
 
+    @Override
+    public void deleteAllProjetsByUserId(Long userId) throws BaseException {
+        try {
+            List<Project> projects = projectRepository.findAllByUser_UserId(userId);
+
+            for (Project p : projects) {
+                deleteProject(p.getProjectId());
+            }
+        }catch (Exception exception) {
+            exception.printStackTrace();
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
 
     @Override
     public Optional<Project> getProjectById(long projectId) throws BaseException {

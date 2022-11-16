@@ -29,6 +29,10 @@ public interface ProjectService {
     void deleteProjectDetails(Long projectId) throws BaseException;
     void deleteProjectNotes(Long projectDetailId) throws BaseException;
 
+    //TODO
+    // 유저 탈퇴시 모든 프로젝트/프로젝트디테일/프로젝트노트 status=0으로
+    void deleteAllProjetsByUserId(Long userId) throws BaseException;
+
     Optional<Project> getProjectById (long projectId) throws BaseException;
 
 //파라미터 수정

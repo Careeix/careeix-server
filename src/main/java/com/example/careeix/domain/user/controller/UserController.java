@@ -3,6 +3,7 @@ package com.example.careeix.domain.user.controller;
 
 import com.example.careeix.config.BaseException;
 import com.example.careeix.domain.color.service.ColorService;
+import com.example.careeix.domain.project.service.ProjectService;
 import com.example.careeix.domain.user.dto.*;
 import com.example.careeix.domain.user.entity.User;
 import com.example.careeix.domain.user.exception.*;
@@ -44,6 +45,7 @@ import static com.example.careeix.utils.ValidationRegex.isRegexNicknameNum;
 public class UserController {
 
     private final UserService userService;
+    private final ProjectService projectService;
 
     private final ColorService colorService;
     private final UserJobService userJobService;
@@ -268,9 +270,10 @@ public class UserController {
             @ApiResponse(code = 400 , message = "JWT 토큰이 비어있습니다.(J2001)"),
             @ApiResponse(code = 403 , message = "ACCESS-TOKEN이 맞지 않습니다.(J2002)", response = ApiErrorResponse.class),
     })
-    public ApplicationResponse<MessageResponse> withdrawUser() {
+    public ApplicationResponse<MessageResponse> withdrawUser() throws BaseException {
         long userId = jwtService.getUserId();
         userService.withdrawUser(userId);
+        projectService.deleteAllProjetsByUserId(userId);
 
         return ApplicationResponse.ok(MessageResponse.builder()
                 .message("회원 탈퇴가 완료되었습니다.")
