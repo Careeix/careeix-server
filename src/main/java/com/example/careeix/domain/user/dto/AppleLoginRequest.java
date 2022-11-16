@@ -24,14 +24,23 @@ public class AppleLoginRequest {
     @NotBlank
     private String nickname;
 
-    @NotBlank
+// FIXME
+//    @NotBlank
+//    private String job;
     private String job;
 
+//FIXME
+//    @Min(0)
+//    @Max(3)
+//    private int userWork;
     @Min(0)
-    @Max(3)
+    @Max(4)
     private int userWork;
 
-    @Size(min = 1, max = 3)
+//FIXME
+//    @Size(min = 1, max = 3)
+//    private List<String> userDetailJob;
+    @Size(min = 0, max = 3)
     private List<String> userDetailJob;
 
     public User toEntity(Long userId, User appleUser) {
