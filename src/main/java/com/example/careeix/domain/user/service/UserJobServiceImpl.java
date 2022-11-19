@@ -122,6 +122,9 @@ public class UserJobServiceImpl implements UserJobService{
                 break;
             }
             // 사용자 세부직무와 같은 유저를 찾기 - string이면 string과 같은 Job여러개가 담김 각각은 당연히 유저가다름
+            /*
+            iOS, ios, IOS
+            */
             List<Job> findJob = jobRepository.findByJobName(job);
             // 42, 146, 74
 //            for(Job j : findJob){
@@ -135,7 +138,7 @@ public class UserJobServiceImpl implements UserJobService{
             }
             // 각 job에 대한 유저찾기 (string 유저 2, ios 유저 2 이렇게 두번 담기는 경우는 제외해줘야)
             for(Job j : findJob){
-                if(profileRecommendResponses.size()>6){
+                if(profileRecommendResponses.size()>= 6){
                     break;
                 }
                 User u = userJobRepository.findByJob_JobId(j.getJobId()).get(0).getUser();
